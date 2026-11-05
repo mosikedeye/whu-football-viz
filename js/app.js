@@ -187,7 +187,6 @@
     card.className = 'venue-card' + (i % 2 === 1 ? ' flip' : '');
     card.id = 'venue-' + v.id;
     card.dataset.campus = v.campusKey;
-    card.dataset.cup = v.cupVenue ? '1' : '0';
 
     var mediaHtml;
     if (v.photos.length) {
@@ -270,14 +269,17 @@
     if (v && v.photos.length) openLb(v.photos, parseInt(t.dataset.idx || '0', 10));
   });
 
-  /* 学部筛选 */
+  /* 学部 / 球场筛选 */
   document.querySelectorAll('#campusFilters .chip').forEach(function (chip) {
     chip.addEventListener('click', function () {
       document.querySelectorAll('#campusFilters .chip').forEach(function (c) { c.classList.remove('active'); });
       chip.classList.add('active');
       var key = chip.dataset.campus;
+      var venueId = chip.dataset.venue;
       document.querySelectorAll('.venue-card').forEach(function (card) {
-        var show = (key === 'all') || (key === 'cup' ? card.dataset.cup === '1' : card.dataset.campus === key);
+        var show = venueId
+          ? card.id === 'venue-' + venueId
+          : (key === 'all' || card.dataset.campus === key);
         card.style.display = show ? '' : 'none';
       });
     });
