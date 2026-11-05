@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D 球场 · 振兴杯球场巡礼 · 武汉大学足球协会</title>
+  <link rel="stylesheet" href="css/3d.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏟️</text></svg>">
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="index.html">← 返回巡礼</a>
+    <h1>🏟️ 振兴杯球场巡礼 · 3D 球场</h1>
+    <div class="tools">
+      <button id="btnDay" title="白天/夜晚切换">🌙 夜晚</button>
+      <button id="btnSpin" class="on" title="自动旋转">🔄 旋转</button>
+      <button id="btnReset" title="重置视角">🎯 重置视角</button>
+    </div>
+  </header>
+
+  <nav class="chips" id="venueChips" aria-label="球场选择"></nav>
+
+  <div id="stage">
+    <div id="hint">🖱️ 拖动旋转 · 滚轮缩放 · 右键平移</div>
+    <div id="loading">⚽ 正在搭建球场…</div>
+    <aside class="panel" id="vInfo"></aside>
+  </div>
+
+  <footer class="foot">
+    几何按实测数据建模：400 米标准跑道（内半径 36.5m · 直道 84.39m · 8 道）· 足球场尺寸取自武大"四季电子地图"矢量数据 ·
+    看台与周边建筑为<b>示意模型</b> · 出品：武汉大学足球协会 · Powered by three.js r147
+  </footer>
+
+  <!-- 传统脚本（非 ES Module）+ 本地 vendor 库：完全离线运行，双击 file:// 即可 -->
+  <script src="js/data.js"></script>
+  <script src="js/vendor/three.min.js"></script>
+  <script src="js/vendor/OrbitControls.js"></script>
+  <script>
+    window.__bootTimer = setTimeout(function () {
+      if (!window.__threeBooted) {
+        var el = document.getElementById('loading');
+        if (el && !el.classList.contains('done')) {
+          el.innerHTML = '⚠️ 3D 场景初始化超时<br><small>请确认 js/vendor/three.min.js 与 js/vendor/OrbitControls.js 文件存在且完整，<br>然后刷新本页（本地库无需联网）。</small>';
+        }
+      }
+    }, 12000);
+  </script>
+  <script src="js/three-app.js"></script>
+</body>
+</html>

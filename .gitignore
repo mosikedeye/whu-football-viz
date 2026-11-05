@@ -1,0 +1,12 @@
+# 研究过程原始数据（矢量瓦片、抓取缓存、坐标中间结果）——站点运行不需要
+data/
+_verify/
+
+# 系统文件
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# 编辑器
+.vscode/
+.idea/
