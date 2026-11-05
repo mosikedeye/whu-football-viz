@@ -39,7 +39,7 @@
   }
 
   var D = window.WHU_FOOTBALL;
-  var CAMPUS_COLOR = { wl: '#a4243b', gx: '#22577a', xx: '#2e7d32', yx: '#6a4c93' };
+  var CAMPUS_COLOR = { wl: '#a4243b', gx: '#22577a', xx: '#2e7d32' };
   var CALIB_KEY = 'whuFbCalibV1';
 
   function loadCalib() {

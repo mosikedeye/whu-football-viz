@@ -21,9 +21,7 @@ const CFG = {
   '912':     { theme: '#a4243b', landmark: 'admin',    trees: 26, stand: 'main',   note: '南侧行政楼为示意复原（1935 年建）' },
   'guiyuan': { theme: '#a4243b', landmark: 'songqing', trees: 18, stand: 'main',   note: '东侧宋卿体育馆为示意（1936 年竣工）' },
   'gongxue': { theme: '#22577a', landmark: 'gym',      trees: 12, stand: 'double', scoreboard: true, note: '全校唯一 3300 余座二类标准体育场（看台示意）' },
-  'xinxi':   { theme: '#2e7d32', landmark: 'library',  trees: 10, stand: 'main',   turfArt: true, bball: true, note: '足球场为人造草坪 · 旁设室外篮球场' },
-  'guoruan': { theme: '#2e7d32', landmark: 'lab',      trees: 14, stand: 'small',  turfArt: true, note: '足球场为人造草坪（信息学部西区）' },
-  'yixue':   { theme: '#6a4c93', landmark: 'hospital', trees: 22, stand: 'main',   note: '现实中的田径场为东西向布置 · 旁为中南医院' }
+  'xinxi':   { theme: '#2e7d32', landmark: 'library',  trees: 10, stand: 'main',   turfArt: true, bball: true, note: '足球场为人造草坪 · 旁设室外篮球场' }
 };
 
 /* 标准 400m 跑道常量（米） */
@@ -221,8 +219,6 @@ const MAT = {
   greenRoof: new THREE.MeshLambertMaterial({ color: 0x2f5d50 }),
   modern: new THREE.MeshLambertMaterial({ color: 0x7d8ca3 }),
   glass: new THREE.MeshLambertMaterial({ color: 0x9fc3d8 }),
-  whiteWall: new THREE.MeshLambertMaterial({ color: 0xe6e4de }),
-  labWall: new THREE.MeshLambertMaterial({ color: 0x8fa3bf }),
   libWall: new THREE.MeshLambertMaterial({ color: 0x98a5b6 })
 };
 
@@ -345,21 +341,6 @@ function buildLandmark(kind) {
     const top = new THREE.Mesh(new THREE.BoxGeometry(26, 2.4, 26), MAT.darkConcrete);
     top.position.y = 37; g.add(top);
     g.position.set(14, 0, -80);
-  } else if (kind === 'lab') {               /* 星湖综合实验楼示意 */
-    const b = new THREE.Mesh(new THREE.BoxGeometry(50, 22, 16), MAT.labWall);
-    b.position.y = 11; b.castShadow = true; g.add(b);
-    const band = new THREE.Mesh(new THREE.BoxGeometry(50.4, 4, 16.4), MAT.glass);
-    band.position.y = 13; g.add(band);
-    g.position.set(0, 0, -80);
-  } else if (kind === 'hospital') {          /* 中南医院住院楼示意 */
-    const b = new THREE.Mesh(new THREE.BoxGeometry(20, 50, 16), MAT.whiteWall);
-    b.position.y = 25; b.castShadow = true; g.add(b);
-    const crossMat = new THREE.MeshLambertMaterial({ color: 0xc62828 });
-    const c1 = new THREE.Mesh(new THREE.BoxGeometry(2.2, 8, 0.5), crossMat);
-    c1.position.set(0, 42, 8.3); g.add(c1);
-    const c2 = new THREE.Mesh(new THREE.BoxGeometry(8, 2.2, 0.5), crossMat);
-    c2.position.set(0, 42, 8.3); g.add(c2);
-    g.position.set(-6, 0, -82);
   }
   return g;
 }
@@ -508,9 +489,7 @@ function buildVenue(v) {
   const rnd = mulberry32(hashStr(v.id));
   const landmarkPos = cfg.landmark === 'songqing' ? [100, -8]
     : cfg.landmark === 'gym' ? [-102, 0]
-    : cfg.landmark === 'hospital' ? [-6, -82]
     : cfg.landmark === 'library' ? [14, -80]
-    : cfg.landmark === 'lab' ? [0, -80]
     : [0, -68];
   let placed = 0, guard = 0;
   while (placed < cfg.trees && guard < 400) {

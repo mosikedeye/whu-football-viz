@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>振兴杯球场巡礼 · 武汉大学足球协会</title>
-  <meta name="description" content="武汉大学足球协会出品："振兴杯"大学生足球联赛球场巡礼——奥场（九一二）、桂操（桂园）、工操（松园）、信操（竹园）四大比赛球场，及国软、杏林两块校园标准田径场，含照片、地图、赛事与 3D 球场。">
+  <meta name="description" content="武汉大学足球协会出品："振兴杯"大学生足球联赛球场巡礼——奥场（九一二）、桂操（桂园）、工操（松园）、信操（竹园）四大比赛球场，含照片、地图、赛事与 3D 球场。">
   <link rel="stylesheet" href="css/vendor/leaflet.css">
   <link rel="stylesheet" href="css/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏆</text></svg>">
@@ -30,8 +30,8 @@
   <div class="hero-content">
     <div class="hero-badge">武汉大学"振兴杯"大学生足球联赛</div>
     <h1>球场巡礼</h1>
-    <p class="hero-sub">以球会友 · 以赛育人 —— 四大比赛球场 与 六块珞珈绿茵</p>
-    <p class="hero-desc">奥场（九一二）· 桂操（桂园）· 工操（松园）· 信操（竹园）｜ 国软田径场 · 杏林田径场</p>
+    <p class="hero-sub">以球会友 · 以赛育人 —— 四大振兴杯比赛球场</p>
+    <p class="hero-desc">奥场（九一二）· 桂操（桂园）· 工操（松园）· 信操（竹园）</p>
     <div class="hero-actions">
       <a class="btn btn-primary" href="#venues">开始巡礼</a>
       <a class="btn btn-ghost" href="#cup">赛事速览</a>
@@ -45,7 +45,7 @@
   <div class="stat"><b id="stat-cupvenues">4</b><span>大振兴杯比赛球场</span></div>
   <div class="stat"><b id="stat-teams">41</b><span>支参赛队伍（2025）</span></div>
   <div class="stat"><b id="stat-athletes">872</b><span>名参赛运动员</span></div>
-  <div class="stat"><b id="stat-venues">6</b><span>块校园标准田径场</span></div>
+  <div class="stat"><b id="stat-venues">4</b><span>片巡礼绿茵</span></div>
 </section>
 
 <main>
@@ -85,7 +85,7 @@
       </div>
       <div class="event-card">
         <h3>🏃 校园环跑（"汉姆运动"）</h3>
-        <p>本科生体育课必修的课外锻炼：在规定场地——五大田径场（九一二、桂园、工学部、信息学部、医学部，<b>不含国软操场</b>）——20 分钟内完成一次环跑，成绩占体育课总评 20%。</p>
+        <p>本科生体育课必修的课外锻炼：在规定场地——五大田径场——20 分钟内完成一次环跑，成绩占体育课总评 20%。</p>
         <p class="event-meta">有效时段：6:00–8:30 / 16:00–18:30 / 20:00–23:00</p>
       </div>
       <div class="event-card">
@@ -98,15 +98,14 @@
 
   <!-- ================= 球场巡礼 ================= -->
   <section id="venues" class="section section-alt">
-    <h2 class="section-title">球场巡礼 · 六大绿茵</h2>
-    <p class="section-desc">"武汉大学总共有 6 个 400 米标准田径场……分散在四个学部，使得几乎每一栋宿舍楼离操场都不远。"——武汉大学官方微信（2019）。其中四大球场是振兴杯的比赛场地。</p>
+    <h2 class="section-title">球场巡礼 · 四大绿茵</h2>
+    <p class="section-desc">"从奥场的历史沉淀到信操的荣耀见证，四大球场承载着武大足球的百年记忆。"——武汉大学体育部（2025）。四大球场即振兴杯的比赛场地。</p>
     <div class="filters" id="campusFilters">
       <button class="chip active" data-campus="all">全部</button>
       <button class="chip" data-campus="cup">🏆 振兴杯场地</button>
       <button class="chip" data-campus="wl">文理学部</button>
       <button class="chip" data-campus="gx">工学部</button>
       <button class="chip" data-campus="xx">信息学部</button>
-      <button class="chip" data-campus="yx">医学部</button>
     </div>
     <div class="venue-list" id="venueList"><!-- JS 渲染 --></div>
   </section>
@@ -114,7 +113,7 @@
   <!-- ================= 地图 ================= -->
   <section id="map-section" class="section">
     <h2 class="section-title">球场地图</h2>
-    <p class="section-desc">六块绿茵分布在珞珈山四周，带 🏆 标记的为振兴杯比赛球场。点击标记查看详情；开启「校准模式」后可拖动标记微调位置（保存在本地浏览器）。</p>
+    <p class="section-desc">四大绿茵分布在珞珈山四周，带 🏆 标记的为振兴杯比赛球场。点击标记查看详情；开启「校准模式」后可拖动标记微调位置（保存在本地浏览器）。</p>
     <div class="map-toolbar">
       <div class="layer-switch" id="layerSwitch">
         <button data-layer="sat" class="active">卫星影像</button>
@@ -140,7 +139,7 @@
   <!-- ================= 其他场地 ================= -->
   <section id="more" class="section">
     <h2 class="section-title">其他运动场地</h2>
-    <p class="section-desc">除六大标准田径场外，校园内还有这些带草坪或跑道的场地（点击可在地图上定位）：</p>
+    <p class="section-desc">除四大比赛球场外，校园内还有这些带草坪或跑道的场地（点击可在地图上定位）：</p>
     <div class="supp-grid" id="suppGrid"><!-- JS 渲染 --></div>
   </section>
 
