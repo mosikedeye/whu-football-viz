@@ -1,5 +1,5 @@
 /* ============================================================
- * 珞珈绿茵 · 武汉大学足球场可视化 —— 数据文件
+ * 振兴杯球场巡礼 · 武汉大学足球协会 —— 数据文件
  * 坐标为 WGS-84（来源：武汉大学"四季电子地图" Urban Computing &
  * Visualization Lab 公开矢量数据 + POI 标注），前端自动转 GCJ-02
  * 以匹配高德底图。照片均来自互联网公开渠道，详见各 credit/source。
@@ -62,15 +62,19 @@ const WHU_FOOTBALL = {
         '操场右侧一排高大悬铃木，春来发新枝，秋来桐叶纷飞'
       ],
       photos: [
+        { f: '912-thepaper.jpg', c: '九一二操场全景', cr: '武汉大学融媒体中心图库', src: 'https://m.thepaper.cn/baijiahao_4292364' },
         { f: '912-aerial-1.jpg', c: '九一二操场毕业典礼航拍（2017-06-22）', cr: '武汉晚报', src: 'https://m.dutenews.com/n/gallery/56285' },
         { f: '912-aerial-3.jpg', c: '航拍：行政楼—九一二—理学院中轴线', cr: '武汉晚报', src: 'https://m.dutenews.com/n/gallery/56285' },
         { f: '912-dawn.jpg', c: '晨曦中的 2017 届毕业典礼现场', cr: '武汉晚报', src: 'https://m.dutenews.com/n/gallery/56285' },
-        { f: '912-thepaper.jpg', c: '九一二操场全景', cr: '武汉大学融媒体中心图库', src: 'https://m.thepaper.cn/baijiahao_4292364' },
+        { f: '912-flag-2.jpeg', c: '2023 年国庆升旗仪式：师生齐聚"9·12"广场', cr: '摄影：马怡宁、唐嘉璐 / 武汉大学新闻网', src: 'https://news.whu.edu.cn/info/1007/443727.htm' },
+        { f: '912-flag-3.jpeg', c: '护旗手护卫五星红旗出旗（2023-10-01）', cr: '摄影：马怡宁、唐嘉璐 / 武汉大学新闻网', src: 'https://news.whu.edu.cn/info/1007/443727.htm' },
+        { f: '912-flag-1.jpeg', c: '九一二操场前的行政楼（2023 年国庆升旗仪式）', cr: '摄影：马怡宁、唐嘉璐 / 武汉大学新闻网', src: 'https://news.whu.edu.cn/info/1007/443727.htm' },
         { f: '912-mil-1.png', c: '2016 级新生军训检阅：迷彩绿铺满操场', cr: '图：何志强 / 武汉大学新闻网', src: 'https://news.whu.edu.cn/info/1002/46995.htm' },
         { f: '912-mil-6.png', c: '军训检阅：方阵从主席台前走过', cr: '图：何志强 / 武汉大学新闻网', src: 'https://news.whu.edu.cn/info/1002/46995.htm' },
         { f: '912-mil-8.png', c: '意气风发的学子们从这里开启新生活', cr: '图：何志强 / 武汉大学新闻网', src: 'https://news.whu.edu.cn/info/1002/46995.htm' }
       ],
       sources: [
+        { label: '我校师生举行庆国庆升旗仪式（2023 · 九一二广场）· 武汉大学新闻网', url: 'https://news.whu.edu.cn/info/1007/443727.htm' },
         { label: '珞珈百科｜武大有一个以日期命名的操场？（武汉大学官方微信·搜狐转载）', url: 'https://www.sohu.com/a/114229213_355701' },
         { label: '珞珈七千"子弟兵"（组图）· 武汉大学新闻网', url: 'https://news.whu.edu.cn/info/1002/46995.htm' },
         { label: '航拍武大 7000 多人毕业典礼 · 武汉晚报', url: 'https://m.dutenews.com/n/gallery/56285' }
@@ -102,8 +106,8 @@ const WHU_FOOTBALL = {
       photos: [
         { f: 'guiyuan-thepaper.jpg', c: '桂园操场及宋卿体育馆', cr: '摄影：田春雨 / 武汉大学官方微信', src: 'https://m.thepaper.cn/baijiahao_4292364' },
         { f: 'wrr-1.jpg', c: '2024 年五人制足球赛决赛 @桂园足球场', cr: '图：谭文希等 / 武汉大学体育部', src: 'https://tyb.whu.edu.cn/info/1003/6423.htm' },
-        { f: 'wrr-2.png', c: '女子组决赛：经管学院一队 5:0 新闻与传播学院', cr: '武汉大学体育部', src: 'https://tyb.whu.edu.cn/info/1003/6423.htm' },
-        { f: 'wrr-3.png', c: '男子组决赛：数学与统计学院一队点球战胜计算机学院一队', cr: '武汉大学体育部', src: 'https://tyb.whu.edu.cn/info/1003/6423.htm' },
+        { f: 'wrr-2.png', c: '男子组决赛：数学与统计学院一队点球战胜计算机学院一队', cr: '武汉大学体育部', src: 'https://tyb.whu.edu.cn/info/1003/6423.htm' },
+        { f: 'wrr-3.png', c: '女子组决赛：经管学院一队 5:0 新闻与传播学院', cr: '武汉大学体育部', src: 'https://tyb.whu.edu.cn/info/1003/6423.htm' },
         { f: 'wrr-4.jpg', c: '赛前球员肃立向国旗敬礼', cr: '武汉大学体育部', src: 'https://tyb.whu.edu.cn/info/1003/6423.htm' },
         { f: 'guiyuan-1990s-run.jpg', c: '90 年代桂园操场晨跑（煤渣跑道时期）', cr: '摄影：王景春 / 武汉大学官方微信·澎湃转载', src: 'https://m.thepaper.cn/baijiahao_9452795' },
         { f: 'guiyuan-1990s-dance.jpg', c: '90 年代桂园操场上的金秋艺术节集体舞排练', cr: '摄影：王景春 / 武汉大学官方微信·澎湃转载', src: 'https://m.thepaper.cn/baijiahao_9452795' }
