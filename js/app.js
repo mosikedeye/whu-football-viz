@@ -275,7 +275,7 @@
       document.querySelectorAll('#campusFilters .chip').forEach(function (c) { c.classList.remove('active'); });
       chip.classList.add('active');
       var key = chip.dataset.campus;
-      var venueId = chip.dataset.venue;
+      var venueId = chip.dataset.venueFilter;
       document.querySelectorAll('.venue-card').forEach(function (card) {
         var show = venueId
           ? card.id === 'venue-' + venueId
