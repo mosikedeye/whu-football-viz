@@ -21,6 +21,11 @@
   <nav class="chips" id="venueChips" aria-label="球场选择"></nav>
 
   <div id="stage">
+    <div id="viewbtns">
+      <button data-view="pano" class="on">🏟 全景</button>
+      <button data-view="top">🛰 俯瞰</button>
+      <button data-view="pitch">⚽ 草坪视角</button>
+    </div>
     <div id="hint">🖱️ 拖动旋转 · 滚轮缩放 · 右键平移</div>
     <div id="loading">⚽ 正在搭建球场…</div>
     <aside class="panel" id="vInfo"></aside>
@@ -35,6 +40,13 @@
   <script src="js/data.js"></script>
   <script src="js/vendor/three.min.js"></script>
   <script src="js/vendor/OrbitControls.js"></script>
+  <script src="js/vendor/EffectComposer.js"></script>
+  <script src="js/vendor/ShaderPass.js"></script>
+  <script src="js/vendor/MaskPass.js"></script>
+  <script src="js/vendor/RenderPass.js"></script>
+  <script src="js/vendor/CopyShader.js"></script>
+  <script src="js/vendor/LuminosityHighPassShader.js"></script>
+  <script src="js/vendor/UnrealBloomPass.js"></script>
   <script>
     window.__bootTimer = setTimeout(function () {
       if (!window.__threeBooted) {
