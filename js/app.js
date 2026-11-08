@@ -195,7 +195,16 @@
       }).join('');
       mediaHtml =
         '<div class="vc-media">' +
-        '<img class="vc-main-photo" src="images/' + v.photos[0].f + '" alt="' + esc(v.photos[0].c) + '" loading="lazy" data-venue="' + v.id + '" data-idx="0">' +
+        '<div class="vc-slider" data-venue="' + v.id + '">' +
+          '<div class="vc-track">' +
+            v.photos.map(function (p, pi) {
+              return '<figure class="vc-slide"><img src="images/' + p.f + '" alt="' + esc(p.c) + '" loading="' + (pi === 0 ? 'eager' : 'lazy') + '" draggable="false"></figure>';
+            }).join('') +
+          '</div>' +
+          (v.photos.length > 1 ? '<div class="vc-dots">' + v.photos.map(function (p, pi) { return '<i data-i="' + pi + '"' + (pi === 0 ? ' class="on"' : '') + '></i>'; }).join('') + '</div>' +
+            '<button class="vc-nav prev" type="button" aria-label="上一张">‹</button>' +
+            '<button class="vc-nav next" type="button" aria-label="下一张">›</button>' : '') +
+        '</div>' +
         '<div class="vc-thumbs">' + thumbs + '</div>' +
         '<span class="vc-photo-count">📷 ' + v.photos.length + ' 张</span></div>';
     } else {
@@ -230,6 +239,111 @@
       '</div>';
     listEl.appendChild(card);
   });
+
+  /* ---------- 卡片轮播：自动滚动 + 手指/鼠标拖拽 ---------- */
+  var sliderStates = [];
+  function sliderGoTo(st, i, animate) {
+    st.i = (i + st.n) % st.n;
+    st.track.style.transition = animate ? '' : 'none';
+    st.track.style.transform = 'translateX(' + (-st.i * 100) + '%)';
+    if (!animate) { void st.track.offsetWidth; st.track.style.transition = ''; }
+    st.dots.forEach(function (d, k) { d.classList.toggle('on', k === st.i); });
+  }
+  function sliderSchedule(st, delay) {
+    clearTimeout(st.timer);
+    st.timer = setTimeout(function () {
+      if (!(document.hidden || !st.visible || st.hover || st.dragging || Date.now() < st.pausedUntil)) {
+        sliderGoTo(st, st.i + 1, true);
+      }
+      sliderSchedule(st, 4200);
+    }, delay);
+  }
+  function initSliders() {
+    document.querySelectorAll('.vc-slider').forEach(function (root) {
+      var vid = root.dataset.venue;
+      var v = D.venues.find(function (x) { return x.id === vid; });
+      if (!v || !v.photos.length) return;
+      var st = {
+        root: root, track: root.querySelector('.vc-track'),
+        dots: Array.prototype.slice.call(root.querySelectorAll('.vc-dots i')),
+        n: v.photos.length, i: 0, vid: vid,
+        pausedUntil: 0, lastDragEnd: 0, visible: true, hover: false,
+        dragging: false, moved: false, startX: 0, startT: 0, baseOffset: 0, timer: null
+      };
+      root._st = st;
+      sliderStates.push(st);
+      sliderGoTo(st, 0, false);
+      /* 圆点指示器：点击直达 */
+      st.dots.forEach(function (d) {
+        d.addEventListener('click', function (e) {
+          e.stopPropagation();
+          sliderGoTo(st, parseInt(d.dataset.i, 10), true);
+          st.pausedUntil = Date.now() + 8000;
+        });
+      });
+      /* 左右切换按钮 */
+      var navBtns = root.querySelectorAll('.vc-nav');
+      navBtns.forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          sliderGoTo(st, st.i + (btn.classList.contains('next') ? 1 : -1), true);
+          st.pausedUntil = Date.now() + 8000;
+        });
+      });
+      /* 拖拽/滑动（Pointer Events：横向切图，纵向照常滚动页面） */
+      root.addEventListener('pointerdown', function (e) {
+        if (st.n < 2 || e.button === 2) return;
+        if (e.target.closest && e.target.closest('.vc-nav, .vc-dots')) return;   /* 按钮/圆点不参与拖拽，保证 click 正常触发 */
+        st.dragging = true;
+        st.moved = false;
+        st.startX = e.clientX; st.startT = Date.now();
+        st.baseOffset = -st.i * root.clientWidth;
+        st.track.style.transition = 'none';
+        try { root.setPointerCapture(e.pointerId); } catch (err) { /* 老内核降级 */ }
+        root.classList.add('dragging');
+      });
+      root.addEventListener('pointermove', function (e) {
+        if (!st.dragging) return;
+        var dx = e.clientX - st.startX;
+        if (Math.abs(dx) > 6) st.moved = true;
+        var off = st.baseOffset + dx;
+        if ((st.i === 0 && dx > 0) || (st.i === st.n - 1 && dx < 0)) off = st.baseOffset + dx * 0.35;  /* 端头回弹 */
+        st.track.style.transform = 'translateX(' + off + 'px)';
+      });
+      function endDrag(e) {
+        if (!st.dragging) return;
+        st.dragging = false;
+        root.classList.remove('dragging');
+        if (!st.moved) { st.track.style.transition = ''; return; }   /* 纯点击：不翻页、不暂停，放行灯箱点击 */
+        st.lastDragEnd = Date.now();
+        var dx = (typeof e.clientX === 'number' ? e.clientX : st.startX) - st.startX;
+        var dt = Math.max((Date.now() - st.startT) / 1000, 0.05);
+        var vel = dx / dt;
+        var thresh = Math.min(root.clientWidth * 0.2, 90);
+        var target = st.i;
+        if (dx < -thresh || vel < -420) target = st.i + 1;        /* 快甩也翻页 */
+        else if (dx > thresh || vel > 420) target = st.i - 1;
+        sliderGoTo(st, target, true);
+        st.pausedUntil = Date.now() + 8000;                       /* 手动操作后暂停自动滚动 8 秒 */
+      }
+      root.addEventListener('pointerup', endDrag);
+      root.addEventListener('pointercancel', endDrag);
+      root.addEventListener('mouseenter', function () { st.hover = true; });
+      root.addEventListener('mouseleave', function () { st.hover = false; });
+      /* 各卡片错开相位启动，避免同时翻页 */
+      sliderSchedule(st, 2600 + (sliderStates.length % 4) * 900);
+    });
+    /* 只有进入视口的卡片才自动滚动（省流量省电） */
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.target._st) en.target._st.visible = en.isIntersecting;
+        });
+      }, { threshold: 0.3 });
+      sliderStates.forEach(function (st) { io.observe(st.root); });
+    }
+  }
+  initSliders();
 
   /* 卡片内照片点击 → 灯箱 */
   var lb = { set: [], idx: 0 };
@@ -275,10 +389,18 @@
     if (e.key === 'ArrowRight') document.getElementById('lbNext').click();
   });
   document.addEventListener('click', function (e) {
+    if (e.target.closest('.vc-3d-btn')) return;
     var t = e.target.closest('[data-venue]');
     if (!t) return;
     var v = D.venues.find(function (x) { return x.id === t.dataset.venue; });
-    if (v && v.photos.length) openLb(v.photos, parseInt(t.dataset.idx || '0', 10));
+    if (!v || !v.photos.length) return;
+    var idx = parseInt(t.dataset.idx || '0', 10);
+    var sliderEl = t.classList.contains('vc-slider') ? t : (t.querySelector ? t.querySelector('.vc-slider') : null);
+    if (sliderEl && sliderEl._st) {
+      if (Date.now() - sliderEl._st.lastDragEnd < 300) return;   /* 拖拽后不触发点击 */
+      idx = sliderEl._st.i;                                      /* 以轮播当前页打开灯箱 */
+    }
+    openLb(v.photos, idx);
   });
 
   /* 学部 / 球场筛选 */
@@ -385,6 +507,621 @@
     setText('stat-athletes', D.cup.y2025.athletes);
   }
   setText('stat-venues', D.venues.length);
+
+  /* ---------- 我的球场足迹 ---------- */
+  var FP_KEY = 'whuFpV1';
+  function loadFp() { try { return JSON.parse(localStorage.getItem(FP_KEY) || '[]'); } catch (e) { return []; } }
+  function saveFp(a) { try { localStorage.setItem(FP_KEY, JSON.stringify(a)); } catch (e) { /* file:// 下可能受限 */ } }
+  var fpSet = {};
+  loadFp().forEach(function (id) { fpSet[id] = true; });
+
+  var fpItems = D.venues.map(function (v) {
+    return { id: v.id, name: v.name, sub: v.campus, cup: true };
+  }).concat(D.supplemental.map(function (s) {
+    return { id: s.id, name: s.name, sub: '其他场地', cup: false };
+  }));
+
+  var fpGrid = document.getElementById('fpGrid');
+  fpGrid.innerHTML = fpItems.map(function (it) {
+    return '<button class="fp-card" data-fp="' + it.id + '" aria-pressed="false">' +
+      '<span class="fp-check">✓</span>' +
+      '<span class="fp-name">' + esc(it.name) + '</span>' +
+      '<span class="fp-sub">' + (it.cup ? '🏆 ' : '') + esc(it.sub) + '</span>' +
+      '</button>';
+  }).join('');
+
+  var FP_RANKS = [
+    [0, '☁️ 云看球选手', '先点亮一座球场吧'],
+    [1, '🌱 初来乍到', '珞珈绿茵向你敞开'],
+    [3, '⚽ 绿茵常客', '球场都认得你的球鞋了'],
+    [5, '🔥 珞珈球痴', '哪块草皮没留下你的脚印？'],
+    [7, '👑 球场传奇', '你就是武大足球的活地图']
+  ];
+  function fpRank(n) {
+    var r = FP_RANKS[0];
+    FP_RANKS.forEach(function (x) { if (n >= x[0]) r = x; });
+    return r;
+  }
+
+  function renderFp() {
+    var n = 0;
+    fpItems.forEach(function (it) { if (fpSet[it.id]) n++; });
+    document.querySelectorAll('.fp-card').forEach(function (c) {
+      var on = !!fpSet[c.dataset.fp];
+      c.classList.toggle('on', on);
+      c.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    document.getElementById('fpBar').style.width = Math.round(n / fpItems.length * 100) + '%';
+    document.getElementById('fpCount').textContent = '已点亮 ' + n + ' / ' + fpItems.length + ' 座场地';
+    var r = fpRank(n);
+    document.getElementById('fpRank').innerHTML = '<b>' + r[1] + '</b><span>' + r[2] + '</span>';
+  }
+  fpGrid.addEventListener('click', function (e) {
+    var c = e.target.closest('.fp-card');
+    if (!c) return;
+    if (fpSet[c.dataset.fp]) delete fpSet[c.dataset.fp];
+    else fpSet[c.dataset.fp] = true;
+    saveFp(Object.keys(fpSet));
+    renderFp();
+  });
+  document.getElementById('fpReset').addEventListener('click', function () {
+    fpSet = {}; saveFp([]); renderFp();
+  });
+  renderFp();
+
+  /* ---------- 分享海报（纯 Canvas 矢量绘制，不引入照片，file:// 下也能导出） ---------- */
+  function rr(c, x, y, w, h, r) {
+    c.beginPath();
+    if (c.roundRect) { c.roundRect(x, y, w, h, r); return; }
+    c.moveTo(x + r, y);
+    c.arcTo(x + w, y, x + w, y + h, r);
+    c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r);
+    c.arcTo(x, y, x + w, y, r);
+    c.closePath();
+  }
+  function drawPoster() {
+    var W = 750, H = 1200;
+    var cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    var c = cv.getContext('2d');
+    var lit = fpItems.filter(function (it) { return fpSet[it.id]; });
+    var n = lit.length;
+    var rank = fpRank(n);
+    var YH = '"Microsoft YaHei", "PingFang SC", sans-serif';
+
+    /* 背景：武大红渐变 + 中圈装饰 */
+    var bg = c.createLinearGradient(0, 0, W * 0.4, H);
+    bg.addColorStop(0, '#8c1523'); bg.addColorStop(0.55, '#a4243b'); bg.addColorStop(1, '#57101f');
+    c.fillStyle = bg; c.fillRect(0, 0, W, H);
+    c.strokeStyle = 'rgba(255,255,255,0.07)'; c.lineWidth = 3;
+    c.beginPath(); c.arc(W / 2, 620, 320, 0, Math.PI * 2); c.stroke();
+    c.beginPath(); c.arc(W / 2, 620, 235, 0, Math.PI * 2); c.stroke();
+    c.fillStyle = 'rgba(255,214,122,0.92)';
+    c.fillRect(0, 0, W, 10); c.fillRect(0, H - 10, W, 10);
+
+    /* 头部 */
+    c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+    c.fillStyle = 'rgba(255,235,200,0.92)';
+    c.font = '26px ' + YH;
+    c.fillText('武汉大学足球协会 · 振兴杯球场巡礼', W / 2, 82);
+    c.fillStyle = '#ffffff';
+    c.font = 'bold 64px ' + YH;
+    c.fillText('我 的 球 场 足 迹', W / 2, 172);
+    c.strokeStyle = 'rgba(255,214,122,0.7)'; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(W / 2 - 135, 208); c.lineTo(W / 2 + 135, 208); c.stroke();
+
+    /* 中央统计 */
+    c.fillStyle = '#ffd67a';
+    c.font = 'bold 118px Georgia, serif';
+    c.fillText(String(n), W / 2 - 46, 356);
+    c.fillStyle = 'rgba(255,255,255,0.85)';
+    c.font = '30px ' + YH;
+    c.textAlign = 'left';
+    c.fillText('/ ' + fpItems.length + ' 座', W / 2 + 26, 356);
+    c.textAlign = 'center';
+    c.fillStyle = '#ffffff';
+    c.font = 'bold 42px ' + YH;
+    c.fillText(rank[1], W / 2, 442);
+    c.fillStyle = 'rgba(255,230,200,0.85)';
+    c.font = '24px ' + YH;
+    c.fillText(rank[2], W / 2, 484);
+
+    /* 已点亮场地列表（两列卡片） */
+    var startY = 548;
+    if (n === 0) {
+      c.fillStyle = 'rgba(255,255,255,0.72)';
+      c.font = '26px ' + YH;
+      c.fillText('还没有点亮任何球场', W / 2, startY + 60);
+      c.fillText('回到页面，点亮你的第一片绿茵吧 ⚽', W / 2, startY + 106);
+    } else {
+      lit.forEach(function (it, i) {
+        var colm = i % 2, row = Math.floor(i / 2);
+        var x = 70 + colm * 330, y = startY + row * 94;
+        c.fillStyle = 'rgba(255,255,255,0.12)';
+        rr(c, x, y, 300, 74, 14); c.fill();
+        c.strokeStyle = 'rgba(255,214,122,0.35)'; c.lineWidth = 1.5;
+        rr(c, x, y, 300, 74, 14); c.stroke();
+        c.textAlign = 'left';
+        c.fillStyle = '#ffd67a';
+        c.font = 'bold 30px ' + YH;
+        c.fillText('✓', x + 18, y + 48);
+        c.fillStyle = '#ffffff';
+        c.font = 'bold 26px ' + YH;
+        c.fillText(it.name, x + 58, y + 34);
+        c.fillStyle = it.cup ? 'rgba(255,214,122,0.92)' : 'rgba(255,255,255,0.62)';
+        c.font = '18px ' + YH;
+        c.fillText(it.cup ? '🏆 振兴杯比赛场地' : it.sub, x + 58, y + 60);
+      });
+      c.textAlign = 'center';
+    }
+
+    /* 底部 */
+    c.fillStyle = 'rgba(255,255,255,0.55)';
+    c.font = '22px ' + YH;
+    c.fillText('珞珈绿茵之上，青春永不落幕', W / 2, 1062);
+    var d = new Date();
+    c.fillStyle = 'rgba(255,235,200,0.92)';
+    c.font = 'bold 26px ' + YH;
+    c.fillText('⚽ 振兴杯球场巡礼 · ' + d.getFullYear() + ' 年 ' + (d.getMonth() + 1) + ' 月', W / 2, 1120);
+    return cv.toDataURL('image/png');
+  }
+
+  var pmEl = document.getElementById('posterModal');
+  if (!('ontouchstart' in window)) {
+    document.getElementById('pmTip').textContent = '右键图片另存，或点击下方按钮下载';
+  }
+  function showPoster(url, filename, alt) {
+    document.getElementById('pmImg').src = url;
+    document.getElementById('pmImg').alt = alt;
+    document.getElementById('pmDl').href = url;
+    document.getElementById('pmDl').download = filename;
+    pmEl.classList.add('open');
+    pmEl.setAttribute('aria-hidden', 'false');
+  }
+  document.getElementById('fpPoster').addEventListener('click', function () {
+    try {
+      showPoster(drawPoster(), '我的武大球场足迹.png', '我的武大球场足迹分享海报');
+    } catch (e) {
+      alert('海报生成失败：' + e.message);
+    }
+  });
+  function closePm() { pmEl.classList.remove('open'); pmEl.setAttribute('aria-hidden', 'true'); }
+  document.getElementById('pmClose').addEventListener('click', closePm);
+  pmEl.addEventListener('click', function (e) { if (e.target === pmEl) closePm(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && pmEl.classList.contains('open')) closePm();
+  });
+
+  /* ============================================================
+   * 冷知识挑战
+   * ============================================================ */
+  var QUIZ_LETTERS = 'ABCD';
+  var QUIZ = [
+    {
+      q: '“九一二操场”这个名字来自哪一年发生的大事？',
+      opts: ['1937 年军官训练团检阅', '1958 年 9 月 12 日毛泽东主席在此接见高校师生', '2001 年扩建为标准化运动场', '2017 年毕业典礼航拍'],
+      a: 1,
+      why: '1958 年 9 月 12 日，毛泽东主席视察武汉大学，在行政楼前操场接见武昌地区几所高校师生，操场因此得名“九一二”。'
+    },
+    {
+      q: '九一二操场位于哪两座历史建筑之间的中轴线上？',
+      opts: ['行政楼与老理学院（理学楼）', '宋卿体育馆与桂园食堂', '工学部体育馆与松园', '信息学部图书馆与星湖'],
+      a: 0,
+      why: '九一二操场端坐在老工学院（今行政楼）与老理学院的中轴线上，被行政楼、人文科学馆、理学楼等历史建筑环抱。'
+    },
+    {
+      q: '桂园田径场东侧是哪座 1936 年竣工的建筑？',
+      opts: ['宋卿体育馆', '卓尔体育馆', '鲲鹏广场', '竹园体育馆'],
+      a: 0,
+      why: '宋卿体育馆 1936 年竣工，坐落桂园田径场东侧；鲲鹏广场在桂园东北，竹园体育馆在信息学部。'
+    },
+    {
+      q: '2025 年“振兴杯”有多少支队伍、多少名运动员参赛？',
+      opts: ['30 支队伍 / 600 名运动员', '41 支队伍 / 872 名运动员', '48 支队伍 / 1000 名运动员', '36 支队伍 / 720 名运动员'],
+      a: 1,
+      why: '2025 年“振兴杯”共有 41 支队伍、872 名运动员参赛，设男子超级组、男子甲级组与女子组。'
+    },
+    {
+      q: '2025 年“振兴杯”决赛在哪座球场举行？',
+      opts: ['九一二操场', '桂园田径场', '工学部田径场', '信息学部操场（竹园操场）'],
+      a: 3,
+      why: '2025 年 12 月 6 日，决赛在信息学部操场举行，这里就是四大球场中的“信操”。'
+    },
+    {
+      q: '2025 年“振兴杯”男子超级组冠军是哪支队伍？',
+      opts: ['计算机学院', '文学院', '文理联队', '数学与统计学院'],
+      a: 0,
+      why: '计算机学院获男子超级组冠军，文学院获男子甲级组冠军，文理联队获女子组冠军。'
+    },
+    {
+      q: '全校唯一拥有 3300 余座、可承办省部级田径比赛的二类标准体育场是？',
+      opts: ['九一二操场', '桂园田径场', '工学部田径场（松园操场）', '信息学部田径场'],
+      a: 2,
+      why: '工学部田径场是全校唯一的 3300 余座位二类标准体育场，学校龙舟队的训练场地也设在这里。'
+    },
+    {
+      q: '2024 年全校五人制足球赛决赛在哪个场地举行？',
+      opts: ['桂园足球场（带挡板的五人制场地）', '九一二操场', '信息学部操场', '梅园操场'],
+      a: 0,
+      why: '2024 年 4 月，全校学生校园五人制足球赛决赛在桂园足球场举行：数学与统计学院一队、经济与管理学院一队分获男女冠军。'
+    },
+    {
+      q: '2017 年 6 月 22 日清晨，九一二操场上发生了什么“名场面”？',
+      opts: ['国庆升旗仪式', '7000 余名毕业生毕业典礼', '校运会开幕式', '新生军训阅兵'],
+      a: 1,
+      why: '2017 年 6 月 22 日，7000 余名毕业生的毕业典礼在九一二操场举行，航拍画面成为武大经典影像。'
+    },
+    {
+      q: '信息学部操场（信操）的足球场是什么草坪？',
+      opts: ['天然草皮', '人造草坪', '煤渣场地', '水泥地'],
+      a: 1,
+      why: '信操足球场为人造草坪；九一二与工学部田径场为天然草皮，桂园操场在 90 年代还是煤渣跑道。'
+    }
+  ];
+
+  function quizRank(score) {
+    if (score >= 10) return { emoji: '🏆', name: '珞珈足球通', tip: '10 题全对，你就是行走的武大足球数据库' };
+    if (score >= 8) return { emoji: '⚽', name: '绿茵学霸', tip: '对球场与赛事如数家珍' };
+    if (score >= 6) return { emoji: '📣', name: '看台常客', tip: '常来看球，也懂不少门道' };
+    if (score >= 3) return { emoji: '🌱', name: '草皮萌新', tip: '刚踏上珞珈绿茵，继续加油' };
+    return { emoji: '☁️', name: '云球迷', tip: '多来操场走走，你会爱上这里' };
+  }
+
+  var quizBox = document.getElementById('quizBox');
+  var qz = null;
+
+  function quizStart() {
+    quizBox.innerHTML =
+      '<div class="q-start">' +
+      '<div class="q-emoji">⚡</div>' +
+      '<h3>10 道题，测测你的武大足球浓度</h3>' +
+      '<p>题目全部出自本站的绿茵时间线与赛事数据。答完生成段位与成绩单海报，发给球搭子比一比。</p>' +
+      '<button class="btn btn-primary" id="qStartBtn" type="button">开始挑战 →</button>' +
+      '</div>';
+    document.getElementById('qStartBtn').addEventListener('click', function () {
+      qz = { i: 0, score: 0, answered: false, picks: [] };
+      quizQuestion();
+    });
+  }
+
+  function quizQuestion() {
+    var item = QUIZ[qz.i];
+    quizBox.innerHTML =
+      '<div class="q-progress"><i style="width:' + Math.round(qz.i / QUIZ.length * 100) + '%"></i></div>' +
+      '<div class="q-step">第 ' + (qz.i + 1) + ' / ' + QUIZ.length + ' 题 · 已答对 ' + qz.score + ' 题</div>' +
+      '<h3 class="q-text">' + esc(item.q) + '</h3>' +
+      '<div class="q-opts">' + item.opts.map(function (o, k) {
+        return '<button class="q-opt" type="button" data-k="' + k + '"><b>' + QUIZ_LETTERS.charAt(k) + '</b>' + esc(o) + '</button>';
+      }).join('') + '</div>' +
+      '<div class="q-feedback" id="qFb" hidden></div>' +
+      '<div class="q-actions" id="qActions"></div>';
+    quizBox.querySelectorAll('.q-opt').forEach(function (b) {
+      b.addEventListener('click', function () { quizAnswer(parseInt(b.getAttribute('data-k'), 10)); });
+    });
+  }
+
+  function quizAnswer(k) {
+    if (qz.answered) return;
+    qz.answered = true;
+    var item = QUIZ[qz.i];
+    var correct = k === item.a;
+    if (correct) qz.score++;
+    qz.picks.push({ k: k, ok: correct });
+    quizBox.querySelectorAll('.q-opt').forEach(function (b, i) {
+      b.disabled = true;
+      if (i === item.a) b.classList.add('correct');
+      if (i === k) b.classList.add(i === item.a ? 'picked' : 'wrong');
+    });
+    var fb = document.getElementById('qFb');
+    fb.hidden = false;
+    fb.className = 'q-feedback ' + (correct ? 'ok' : 'no');
+    fb.innerHTML = '<b>' + (correct ? '✅ 回答正确' : '❌ 正确答案：' + QUIZ_LETTERS.charAt(item.a)) + '</b><br>' + esc(item.why);
+    var last = qz.i === QUIZ.length - 1;
+    var act = document.getElementById('qActions');
+    act.innerHTML = '<button class="btn btn-primary q-next" id="qNextBtn" type="button">' + (last ? '查看成绩 →' : '下一题 →') + '</button>';
+    document.getElementById('qNextBtn').addEventListener('click', function () {
+      if (last) { quizResult(); return; }
+      qz.i++;
+      qz.answered = false;
+      quizQuestion();
+    });
+  }
+
+  function quizResult() {
+    var rank = quizRank(qz.score);
+    var wrong = [];
+    qz.picks.forEach(function (p, i) { if (!p.ok) wrong.push({ item: QUIZ[i], k: p.k }); });
+    var review = '';
+    if (wrong.length) {
+      review = '<details class="q-review"><summary>查看错题（' + wrong.length + ' 题）</summary><ol>' +
+        wrong.map(function (w) {
+          return '<li><b>' + esc(w.item.q) + '</b><br>正确答案：' + QUIZ_LETTERS.charAt(w.item.a) + '. ' +
+            esc(w.item.opts[w.item.a]) + '<br><span>' + esc(w.item.why) + '</span></li>';
+        }).join('') + '</ol></details>';
+    }
+    quizBox.innerHTML =
+      '<div class="q-result">' +
+      '<div class="q-score-big">' + qz.score + '<span>/ ' + QUIZ.length + '</span></div>' +
+      '<div class="q-rank">' + rank.emoji + ' ' + rank.name + '</div>' +
+      '<p class="q-tip">' + rank.tip + '</p>' + review +
+      '<div class="q-actions">' +
+      '<button class="btn btn-primary" id="qPosterBtn" type="button">🖼 生成成绩单海报</button>' +
+      '<button class="btn btn-ghost" id="qAgainBtn" type="button">再挑战一次</button>' +
+      '</div></div>';
+    document.getElementById('qPosterBtn').addEventListener('click', function () {
+      try { showPoster(drawQuizPoster(), '武大足球冷知识成绩单.png', '武大足球冷知识挑战成绩单'); }
+      catch (e) { alert('海报生成失败：' + e.message); }
+    });
+    document.getElementById('qAgainBtn').addEventListener('click', quizStart);
+  }
+
+  function drawQuizPoster() {
+    var W = 750, H = 1200;
+    var cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    var c = cv.getContext('2d');
+    var rank = quizRank(qz.score);
+    var YH = '"Microsoft YaHei", "PingFang SC", sans-serif';
+
+    var bg = c.createLinearGradient(0, 0, W * 0.4, H);
+    bg.addColorStop(0, '#123f1a'); bg.addColorStop(0.55, '#1f6428'); bg.addColorStop(1, '#0b2a11');
+    c.fillStyle = bg; c.fillRect(0, 0, W, H);
+    c.strokeStyle = 'rgba(255,255,255,0.07)'; c.lineWidth = 3;
+    c.beginPath(); c.arc(W / 2, 500, 330, 0, Math.PI * 2); c.stroke();
+    c.beginPath(); c.arc(W / 2, 500, 240, 0, Math.PI * 2); c.stroke();
+    c.fillStyle = 'rgba(255,214,122,0.9)';
+    c.fillRect(0, 0, W, 10); c.fillRect(0, H - 10, W, 10);
+
+    c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+    c.fillStyle = 'rgba(225,245,220,0.9)'; c.font = '26px ' + YH;
+    c.fillText('武汉大学足球协会 · 振兴杯球场巡礼', W / 2, 82);
+    c.fillStyle = '#ffffff'; c.font = 'bold 60px ' + YH;
+    c.fillText('武大足球冷知识', W / 2, 168);
+    c.fillStyle = '#ffd67a'; c.font = 'bold 32px ' + YH;
+    c.fillText('成 绩 单', W / 2, 222);
+    c.strokeStyle = 'rgba(255,214,122,0.65)'; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(W / 2 - 120, 252); c.lineTo(W / 2 + 120, 252); c.stroke();
+
+    c.fillStyle = '#ffd67a'; c.font = 'bold 170px Georgia, serif';
+    c.fillText(String(qz.score), W / 2 - 58, 438);
+    c.fillStyle = 'rgba(255,255,255,0.85)'; c.font = '38px ' + YH;
+    c.textAlign = 'left';
+    c.fillText('/ ' + QUIZ.length, W / 2 + 52, 432);
+    c.textAlign = 'center';
+
+    c.fillStyle = '#ffffff'; c.font = 'bold 46px ' + YH;
+    c.fillText(rank.emoji + ' ' + rank.name, W / 2, 512);
+    c.fillStyle = 'rgba(225,245,220,0.85)'; c.font = '24px ' + YH;
+    c.fillText(rank.tip, W / 2, 556);
+
+    var stats = [['答对', qz.score + ' 题'], ['答错', (QUIZ.length - qz.score) + ' 题'], ['正确率', Math.round(qz.score / QUIZ.length * 100) + '%']];
+    stats.forEach(function (s, i) {
+      var x = 88 + i * 200;
+      c.fillStyle = 'rgba(255,255,255,0.10)';
+      rr(c, x, 620, 174, 104, 16); c.fill();
+      c.strokeStyle = 'rgba(255,214,122,0.35)'; c.lineWidth = 1.5;
+      rr(c, x, 620, 174, 104, 16); c.stroke();
+      c.fillStyle = 'rgba(255,255,255,0.65)'; c.font = '22px ' + YH;
+      c.fillText(s[0], x + 87, 660);
+      c.fillStyle = '#ffd67a'; c.font = 'bold 36px ' + YH;
+      c.fillText(s[1], x + 87, 706);
+    });
+
+    c.fillStyle = 'rgba(255,255,255,0.55)'; c.font = '22px ' + YH;
+    c.fillText('珞珈绿茵之上，青春永不落幕', W / 2, 1062);
+    var d = new Date();
+    c.fillStyle = 'rgba(225,245,220,0.9)'; c.font = 'bold 26px ' + YH;
+    c.fillText('⚽ 振兴杯球场巡礼 · ' + d.getFullYear() + ' 年 ' + (d.getMonth() + 1) + ' 月', W / 2, 1120);
+    return cv.toDataURL('image/png');
+  }
+
+  quizStart();
+
+  /* ============================================================
+   * 球场人格测试
+   * ============================================================ */
+  var VINFO = {
+    '912': {
+      name: '九一二操场', alias: '奥场 · 九一二', title: '仪式感担当',
+      color: '#a4243b', dark: '#57101f',
+      keys: ['历史底蕴', '沉稳大气', '关键时刻'],
+      desc: '你像九一二操场：站在行政楼与老理学院的中轴线上，见过军训、毕业典礼和无数大场面。你重仪式、有分寸，越是关键时刻越稳得住，是朋友眼里最可靠的存在。'
+    },
+    guiyuan: {
+      name: '桂园田径场', alias: '桂操 · 五人制决赛地', title: '人缘担当',
+      color: '#b03a2e', dark: '#5e1610',
+      keys: ['热情外放', '烟火气', '社交达人'],
+      desc: '你像桂园操场：紧邻食堂与宿舍，白天踢球、夜晚夜跑，永远热热闹闹。你把运动当成相聚的理由，走到哪里都能把气氛带起来。'
+    },
+    gongxue: {
+      name: '工学部田径场', alias: '工操 · 松园操场', title: '实力担当',
+      color: '#22577a', dark: '#102c3f',
+      keys: ['低调硬核', '专业主义', '耐力型'],
+      desc: '你像工学部田径场：3300 余座的专业看台、天然草皮和龙舟队训练地。你不爱张扬，但训练计划从不缺席，是队友最信赖的工兵。'
+    },
+    xinxi: {
+      name: '信息学部田径场', alias: '信操 · 竹园操场', title: '速度担当',
+      color: '#2e7d32', dark: '#124016',
+      keys: ['新锐高效', '行动力强', '人造草皮'],
+      desc: '你像信息学部操场：人造草皮、节奏飞快，旁边就是图书馆与星湖。你拥抱新事物、执行力强，喜欢用最快的方式把想法变成进球。'
+    }
+  };
+
+  var VTEST = [
+    {
+      q: '周末清晨，你最想怎么开启一天？',
+      opts: [
+        { t: '去历史建筑环绕的操场走一圈', v: '912' },
+        { t: '约上球搭子，先吃早餐再踢一场', v: 'guiyuan' },
+        { t: '按训练计划完成一组间歇跑', v: 'gongxue' },
+        { t: '睡到自然醒，下午高效运动一小时', v: 'xinxi' }
+      ]
+    },
+    {
+      q: '在球队里，你更像：',
+      opts: [
+        { t: '后场指挥官，稳住节奏', v: '912' },
+        { t: '气氛组组长，喊得最响', v: 'guiyuan' },
+        { t: '跑不死的工兵，脏活累活都干', v: 'gongxue' },
+        { t: '速度型边锋，反击一击致命', v: 'xinxi' }
+      ]
+    },
+    {
+      q: '选一个最像你的关键词：',
+      opts: [
+        { t: '传承', v: '912' },
+        { t: '热闹', v: 'guiyuan' },
+        { t: '硬核', v: 'gongxue' },
+        { t: '新潮', v: 'xinxi' }
+      ]
+    },
+    {
+      q: '你理想中的球场是：',
+      opts: [
+        { t: '历史建筑环抱、仪式感拉满', v: '912' },
+        { t: '食堂宿舍就在旁边、随时能开踢', v: 'guiyuan' },
+        { t: '专业看台、设施齐全', v: 'gongxue' },
+        { t: '人造草皮、节奏飞快', v: 'xinxi' }
+      ]
+    }
+  ];
+
+  var vtestBox = document.getElementById('vtestBox');
+  var vt = null;
+
+  function vtestStart() {
+    vtestBox.innerHTML =
+      '<div class="q-start">' +
+      '<div class="q-emoji">🔮</div>' +
+      '<h3>4 道题、30 秒，测测你是哪座球场</h3>' +
+      '<p>凭直觉作答，没有标准答案。结果附专属球场人格解读与分享海报。</p>' +
+      '<button class="btn btn-primary" id="vtStartBtn" type="button">开始测试 →</button>' +
+      '</div>';
+    document.getElementById('vtStartBtn').addEventListener('click', function () {
+      vt = { i: 0, picks: [] };
+      vtestQuestion();
+    });
+  }
+
+  function vtestQuestion() {
+    var item = VTEST[vt.i];
+    vtestBox.innerHTML =
+      '<div class="q-progress"><i style="width:' + Math.round(vt.i / VTEST.length * 100) + '%"></i></div>' +
+      '<div class="q-step">第 ' + (vt.i + 1) + ' / ' + VTEST.length + ' 题</div>' +
+      '<h3 class="q-text">' + esc(item.q) + '</h3>' +
+      '<div class="q-opts">' + item.opts.map(function (o, k) {
+        return '<button class="q-opt" type="button" data-k="' + k + '"><b>' + QUIZ_LETTERS.charAt(k) + '</b>' + esc(o.t) + '</button>';
+      }).join('') + '</div>';
+    vtestBox.querySelectorAll('.q-opt').forEach(function (b) {
+      b.addEventListener('click', function () {
+        vt.picks.push(item.opts[parseInt(b.getAttribute('data-k'), 10)].v);
+        if (vt.picks.length >= VTEST.length) { vtestResult(); return; }
+        vt.i++;
+        vtestQuestion();
+      });
+    });
+  }
+
+  function vtestResult() {
+    var score = {}, latest = {};
+    Object.keys(VINFO).forEach(function (id) { score[id] = 0; latest[id] = -1; });
+    vt.picks.forEach(function (v, i) { score[v]++; latest[v] = i; });
+    var best = '912';
+    Object.keys(VINFO).forEach(function (id) {
+      if (score[id] > score[best] || (score[id] === score[best] && latest[id] > latest[best])) best = id;
+    });
+    var info = VINFO[best];
+    vtestBox.innerHTML =
+      '<div class="q-result vt-result">' +
+      '<div class="vt-badge">你的球场人格</div>' +
+      '<div class="vt-venue">' + info.name + '</div>' +
+      '<div class="vt-persona">' + info.title + ' · ' + info.alias + '</div>' +
+      '<div class="vt-keys">' + info.keys.map(function (k) { return '<span>' + k + '</span>'; }).join('') + '</div>' +
+      '<p class="vt-desc">' + info.desc + '</p>' +
+      '<div class="q-actions">' +
+      '<a class="btn btn-primary" href="#venue-' + best + '">📍 查看球场详情</a>' +
+      '<button class="btn btn-ghost" id="vtPosterBtn" type="button">🖼 生成人格海报</button>' +
+      '<button class="btn btn-ghost" id="vtAgainBtn" type="button">重新测试</button>' +
+      '</div></div>';
+    document.getElementById('vtPosterBtn').addEventListener('click', function () {
+      try { showPoster(drawVTestPoster(info), '我的球场人格_' + info.name + '.png', '我的球场人格：' + info.name); }
+      catch (e) { alert('海报生成失败：' + e.message); }
+    });
+    document.getElementById('vtAgainBtn').addEventListener('click', vtestStart);
+  }
+
+  function wrapCJK(c, text, maxW) {
+    var lines = [], line = '';
+    for (var i = 0; i < text.length; i++) {
+      var ch = text.charAt(i);
+      if (line && c.measureText(line + ch).width > maxW) { lines.push(line); line = ch; }
+      else line += ch;
+    }
+    if (line) lines.push(line);
+    return lines;
+  }
+
+  function drawVTestPoster(info) {
+    var W = 750, H = 1200;
+    var cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    var c = cv.getContext('2d');
+    var YH = '"Microsoft YaHei", "PingFang SC", sans-serif';
+
+    var bg = c.createLinearGradient(0, 0, W * 0.4, H);
+    bg.addColorStop(0, info.color); bg.addColorStop(0.6, info.color); bg.addColorStop(1, info.dark);
+    c.fillStyle = bg; c.fillRect(0, 0, W, H);
+    c.strokeStyle = 'rgba(255,255,255,0.08)'; c.lineWidth = 3;
+    c.beginPath(); c.arc(W / 2, 470, 320, 0, Math.PI * 2); c.stroke();
+    c.beginPath(); c.arc(W / 2, 470, 230, 0, Math.PI * 2); c.stroke();
+    c.fillStyle = 'rgba(255,214,122,0.9)';
+    c.fillRect(0, 0, W, 10); c.fillRect(0, H - 10, W, 10);
+
+    c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+    c.fillStyle = 'rgba(255,240,225,0.9)'; c.font = '26px ' + YH;
+    c.fillText('武汉大学足球协会 · 振兴杯球场巡礼', W / 2, 82);
+    c.fillStyle = '#ffffff'; c.font = 'bold 54px ' + YH;
+    c.fillText('我 的 球 场 人 格', W / 2, 164);
+    c.strokeStyle = 'rgba(255,214,122,0.65)'; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(W / 2 - 145, 196); c.lineTo(W / 2 + 145, 196); c.stroke();
+
+    c.fillStyle = '#ffd67a'; c.font = 'bold 64px ' + YH;
+    c.fillText(info.name, W / 2, 300);
+    c.fillStyle = 'rgba(255,240,225,0.82)'; c.font = '24px ' + YH;
+    c.fillText(info.alias, W / 2, 344);
+    c.fillStyle = '#ffffff'; c.font = 'bold 42px ' + YH;
+    c.fillText(info.title, W / 2, 418);
+
+    c.font = '22px ' + YH;
+    var widths = info.keys.map(function (k) { return c.measureText(k).width + 40; });
+    var total = widths.reduce(function (a, b) { return a + b; }, 0) + 14 * (info.keys.length - 1);
+    var x = W / 2 - total / 2;
+    info.keys.forEach(function (k, i) {
+      c.fillStyle = 'rgba(255,255,255,0.14)';
+      rr(c, x, 456, widths[i], 42, 21); c.fill();
+      c.strokeStyle = 'rgba(255,214,122,0.55)'; c.lineWidth = 1.5;
+      rr(c, x, 456, widths[i], 42, 21); c.stroke();
+      c.fillStyle = '#ffd67a'; c.font = '22px ' + YH;
+      c.fillText(k, x + widths[i] / 2, 484);
+      x += widths[i] + 14;
+    });
+
+    c.fillStyle = 'rgba(255,255,255,0.92)'; c.font = '26px ' + YH;
+    c.textAlign = 'left';
+    var lines = wrapCJK(c, info.desc, 600);
+    lines.forEach(function (ln, i) { c.fillText(ln, 75, 590 + i * 44); });
+    c.textAlign = 'center';
+
+    c.fillStyle = 'rgba(255,240,225,0.7)'; c.font = '22px ' + YH;
+    c.fillText('珞珈绿茵之上，青春永不落幕', W / 2, 1062);
+    var d = new Date();
+    c.fillStyle = 'rgba(255,240,225,0.92)'; c.font = 'bold 26px ' + YH;
+    c.fillText('⚽ 振兴杯球场巡礼 · ' + d.getFullYear() + ' 年 ' + (d.getMonth() + 1) + ' 月', W / 2, 1120);
+    return cv.toDataURL('image/png');
+  }
+
+  vtestStart();
 
   /* ---------- Hero 图片加载失败兜底 ---------- */
   var heroImg = new Image();

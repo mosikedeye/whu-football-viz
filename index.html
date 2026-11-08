@@ -19,6 +19,9 @@
     <span class="nav-logo">🏆 振兴杯 · 球场巡礼</span>
     <a href="#cup">赛事</a>
     <a href="#venues">球场巡礼</a>
+    <a href="#footprint">我的足迹</a>
+    <a href="#quiz">冷知识</a>
+    <a href="#vtest">球场测试</a>
     <a href="#map-section">地图</a>
     <a href="3d.html">🎮 3D 球场</a>
     <a href="#timeline">时间线</a>
@@ -113,6 +116,36 @@
     <div class="venue-list" id="venueList"><!-- JS 渲染 --></div>
   </section>
 
+  <!-- ================= 我的球场足迹 ================= -->
+  <section id="footprint" class="section">
+    <h2 class="section-title">我的球场足迹</h2>
+    <p class="section-desc">点亮你踢过球、跑过步、看过比赛的场地——生成专属海报，分享给你的球搭子。（足迹保存在本机浏览器，不会上传）</p>
+    <div class="fp-grid" id="fpGrid"><!-- JS 渲染 --></div>
+    <div class="fp-summary">
+      <div class="fp-progress"><div class="fp-progress-bar" id="fpBar"></div></div>
+      <div class="fp-count" id="fpCount">已点亮 0 / 8 座场地</div>
+      <div class="fp-rank" id="fpRank"></div>
+    </div>
+    <div class="fp-actions">
+      <button class="btn btn-primary" id="fpPoster">🖼 生成我的分享海报</button>
+      <button class="btn btn-ghost" id="fpReset">清空足迹</button>
+    </div>
+  </section>
+
+  <!-- ================= 冷知识挑战 ================= -->
+  <section id="quiz" class="section">
+    <h2 class="section-title">⚡ 武大足球冷知识挑战</h2>
+    <p class="section-desc">10 道题，全部出自本站的绿茵时间线与赛事数据。答完生成段位与成绩单海报——敢不敢发给你的球搭子比一比？</p>
+    <div class="quiz-box" id="quizBox"><!-- JS 渲染 --></div>
+  </section>
+
+  <!-- ================= 球场人格测试 ================= -->
+  <section id="vtest" class="section">
+    <h2 class="section-title">🔮 你是哪座武大球场？</h2>
+    <p class="section-desc">4 道题、30 秒，凭直觉作答——测测你的性格最像四大振兴杯比赛球场中的哪一座，附专属人格解读与结果海报。</p>
+    <div class="quiz-box" id="vtestBox"><!-- JS 渲染 --></div>
+  </section>
+
   <!-- ================= 地图 ================= -->
   <section id="map-section" class="section">
     <h2 class="section-title">球场地图</h2>
@@ -181,6 +214,16 @@
     <figcaption><span id="lbCap"></span><br><small id="lbCr"></small></figcaption>
   </figure>
   <button class="lb-next" id="lbNext" aria-label="下一张">›</button>
+</div>
+
+<!-- 分享海报 -->
+<div class="poster-modal" id="posterModal" aria-hidden="true">
+  <button class="lb-close" id="pmClose" aria-label="关闭">×</button>
+  <div class="pm-box">
+    <img id="pmImg" alt="我的武大球场足迹分享海报">
+    <p class="pm-tip" id="pmTip">长按图片保存 / 转发给朋友</p>
+    <a class="btn btn-primary pm-dl" id="pmDl" download="我的武大球场足迹.png" href="#">⬇ 下载海报</a>
+  </div>
 </div>
 
 <script src="js/vendor/leaflet.js"></script>
