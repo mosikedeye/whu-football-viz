@@ -54,7 +54,7 @@ whu-football-viz/
 ├─ images/             # 43 张照片（官方渠道下载，图注与来源见 data.js）
 ├─ data/               # 研究原始数据（矢量瓦片解析结果 labels-dump.txt、mvt-fields.txt、样式 JSON 等，可删）
 ├─ _verify/            # 高德卫星瓦片缓存（定位核对用，可删）
-├─ _baseline/          # 本地回退备份（格式规范整改前的原始版本，确认无误后可删）
+├─ _baseline/          # 本地回退备份（本项目已有 git 历史，该副本已冗余，可随时删）
 ├─ CONTRIBUTING.md     # ★ 代码规范与待办清单（改代码前先看这个）
 ├─ package.json        # 可选工具链脚本（lint / format / serve），不参与运行
 ├─ eslint.config.mjs   # ESLint 配置（ESLint 9 flat config）
@@ -81,7 +81,7 @@ npm run format:check # 只检查、不改写
 npm run serve        # python -m http.server 8000
 ```
 
-> 首次运行 `npm run format` 会一次性重排格式（含把 `css/*.css` 的紧凑写法展开为一行一条声明、并按 IIFE 重新缩进 `js/three-app.js`）；这属于纯格式变更，建议先 `git init` 提交一次再执行，改动前后各看一眼页面。`_baseline/before-format/` 保留了整改前的原始文件，确认无误后可整目录删除。
+> 本仓库已有完整 git 历史，规范整改与格式统一都留下了独立提交，回退用 `git log` / `git revert` 即可，不必依赖目录副本。日后若再次做大范围重排，也请单独提交一次，方便用 `git show` 审阅。`_baseline/before-format/` 是本次整改前的冗余副本，可以删掉。
 
 ## 数据与坐标说明
 

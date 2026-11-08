@@ -18,7 +18,7 @@
 | `css/style.css` / `css/3d.css` | 样式            | 只放第一方样式                                                    |
 | `js/vendor`、`css/vendor`      | 第三方库        | **不修改、不 lint、不格式化**                                     |
 | `data/`、`_verify/`            | 研究中间产物    | 已写入 `.gitignore`，可随时删除                                   |
-| `_baseline/`                   | 本地回退备份    | 已写入 `.gitignore`，确认无误后删除                               |
+| `_baseline/`                   | 本地回退备份    | 已写入 `.gitignore`；项目本身有 git 历史，该副本属冗余保险，可删  |
 
 ## 2. 工具链（可选，仅供本地检查）
 
@@ -135,7 +135,7 @@ npm run serve          # python -m http.server 8000
 ### 6.2 P1 · 行为性修复（改完必须用浏览器/真机核对）
 
 1. **CSS `@media` 源序错乱**（`css/style.css`）：900px 块出现两次（:358、:501），700px 块三次（:365、:435、:570）。同特异度下后出现的胜出，于是 `#map{height:400px}`(:372) 与 `.nav{gap:9px}`(:374) 成了死声明。本轮按「保持当前实际渲染」处理（删掉这两条死声明，移动端地图维持 460px、导航 gap 维持 10px）；**若原意是 400px，把 :507 的 460px 改回 400px**，并把所有媒体查询按降序重整一次。
-2. **锚点被吸顶导航遮挡**（`css/style.css:364` `section[id]{scroll-margin-top:64px}`）：≤700px 时导航缩字号后会折 2–3 行，真实页头高度远超 64px。建议由 JS 量测页头高度写入 `--header-h`，CSS 改用 `var(--header-h)`。
+2. **锚点被吸顶导航遮挡**（`css/style.css` 的 `section[id]{scroll-margin-top:64px}`）：≤700px 时导航缩字号后会折 2–3 行，真实页头高度远超 64px。**已实测**：375px 宽度下页头实际高 **109px**，而偏移仍按 64px 计算 → 点锚点跳转后标题会被遮住约 45px。建议由 JS 量测页头高度写入 `--header-h`，CSS 改用 `var(--header-h)`。
 3. **转义策略不统一**（`js/app.js`）：部分位置已用 `esc()`，但 `:105-114`、`:143`、`:221`、`:500` 仍把 `v.name`、`s.url`、`c.url` 等直接拼进 `innerHTML`（含属性上下文，且无协议白名单）。建议统一 `esc()`，URL 再做 `http/https/相对路径` 校验。
 4. **数据缺守卫**（`js/app.js:41` 起）：`data.js` 加载失败时整个 IIFE 抛错、页面全白（入口守卫已加）；`D.overview.nightPhoto`(:462-468) 等深层字段仍建议加守卫或分段 `try/catch`，避免一处抛错连带时间线、足迹、测验全部不渲染。
 5. **触屏判定**（`js/app.js:671`）：用 `!('ontouchstart' in window)` 判断并决定提示文案，触屏 + 鼠标的混合设备会判错；建议改用 `(hover: hover)` / `(pointer: coarse)` 或 `matchMedia`。
@@ -156,7 +156,7 @@ npm run serve          # python -m http.server 8000
 2. **事件委托分散**（`js/app.js:385`、`391`、`423`、`481`、`692`）：2 个 document `keydown` + 3 个 document `click` 并存，每次点击要过三遍 `closest` → 合并为单一分发器。
 3. **DOM expando 传状态**（`js/app.js:273`、`340`、`399` 的 `root._st`）→ 改用 `WeakMap`。
 4. **静态数据内联在视图文件里**（`js/app.js:699-761` QUIZ、`924-988` VTEST/VINFO、`533-539` FP_RANKS，约 260 行）→ 迁入 `js/data.js` 挂到 `WHU_FOOTBALL`。
-5. **`var` → `const/let`**（`js/app.js` 全文）：该文件是「ES5 写法 + 现代 API」混搭，`eslint --fix` 无法自动修 `no-var`，需手工或脚本迁移并做浏览器回归。
+5. **`var` → `const/let`**（`js/app.js` 全文）：该文件是「ES5 写法 + 现代 API」混搭。注意 `no-var` **虽然**可自动修复，但它的修复器不避让 TDZ（见 6.5 踩坑记录），所以不能直接 `eslint --fix` 了事，必须人工迁移 + 浏览器回归；迁移时还要单独检查**循环变量被闭包捕获**的写法（`let` 会为每次迭代生成独立绑定，`var` 不会，这会改变行为）。
 6. **3D 页动效不响应 `prefers-reduced-motion`**（`js/three-app.js` 的 `controls.autoRotate`、云/花瓣/球员/水面动画）：`css/style.css` 的 CSS 兜底覆盖不到 WebGL 内部动效。建议在 `three-app.js` 里读 `matchMedia('(prefers-reduced-motion: reduce)')`，命中时关闭自动旋转与装饰性动画（球场几何本身不受影响）。原「补 `'use strict'`」一条已在本轮完成（见 6.1）。
 7. **硬编码与魔数收敛**：`'venue-'` 前缀（app.js 4 处）、`'images/'`（6 处）、默认场地 `'912'`、`images/912-aerial-1.jpg`（`index.html:9`、`css/style.css:53`、`app.js:1132` 三处各写一次）、轮播 4200ms、滑动阈值、坐标换算 110540/111320、海报 750×1200 → 抽常量表 / `CONFIG`。
 8. **CSS 死 token 与重复样式**（`css/style.css`）：`--wl/--gx/--xx`(:14-16) 零引用；`#ffd67a` 出现 7 次、`rgba(148,7,10,*)` 6 次；卡片表面样式重复 5 处、胶囊按钮重复 5 处；两套 `:root` 中 `--card` / `--line` **同名不同义** → 建议抽 `css/tokens.css` 或改名。
@@ -186,6 +186,25 @@ npm run serve          # python -m http.server 8000
 5. `timeline[].y` 混用 `'1930s'` / `'1936'` / `'1958.9.12'` / `'2023.11'` → 拆成机器可读 `date` + 展示用 `label`。
 6. 同一概念四个名字：`supplemental` / 「其他运动场地」 / `#more` / `suppGrid` → 统一。
 7. 未被任何数据引用的图片：`912-aerial-2.jpg`、`912-aerial-4.jpg`、`gongcao-4.jpg`、`songyuan-cse-2.jpg`、`zxb-award.jpg`、`zxb-men-a.jpg`、`zxb-venue2.jpg` → 补进 `data.js` 或移出发布目录；`_verify/tiles` 属调试产物，可删。
+
+### 6.5 本轮验证记录（实测，非推断）
+
+| 项目                                                   | 结果                                                                                                             |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| `node --check`（4 个第一方 JS）                        | 全部通过                                                                                                         |
+| `npm run format:check`                                 | 通过                                                                                                             |
+| `npm run lint`                                         | **0 error / 158 warning**；警告全部是 `js/app.js` 存量 `var` 的待办，无其它问题                                  |
+| 主站 `index.html`（无头 Edge，`file://` 直开，1280px） | 0 控制台报错、0 请求失败；4 张球场卡、12 条时间线、4 个其他场地、4 个地图标记、**46 张瓦片加载成功**             |
+| 3D 页 `3d.html`                                        | 0 报错；`window.__threeBooted === true`、`window.__whu3d` 可访问、loading 收起、WebGL 上下文存活                 |
+| 移动端 375px（主站）                                   | 无横向溢出（`scrollWidth === 375`）；地图高 458px（即 900px 断点的 460px 生效，印证 6.2 第 1 条）                |
+| 移动端 375px（3D 页）                                  | 正常启动、canvas 375×671、`#hint` 按媒体查询隐藏                                                                 |
+| 海报弹层（本轮修复项）                                 | `.poster-modal` 计算 z-index **2000** > `.site-header` **1200**，弹层确实盖住页头；海报 canvas 750×1200 正常生成 |
+
+**踩坑记录（写规则时请避开）**
+
+1. `no-var` 是「可自动修复」规则，但其修复器只避让**块作用域**变化，**不避让「先使用后声明」**：实测 `x = 1; var x;` 会被改成 `let x`，运行时抛 `ReferenceError`（`typeof y; var y;` 同理）。因此 `js/app.js` 已关闭 `no-var`，改用不可自动修复的 `no-restricted-syntax` 记录待办，`npm run lint:fix` 不会再悄悄改写它的语义。
+2. `curly` 必须是 `all`：`multi-line` 模式与 Prettier 折行互相打架——Prettier 把超长单行 `if` 折成两行后，`multi-line` 会立刻新增一批 error（实测 4 个）。
+3. Prettier 的 HTML 解析器比浏览器严格，能直接抓出属性值里的裸双引号（`index.html` 的 `meta description` 就是这样被抓到的，属原有缺陷）。
 
 ## 7. 提交前自查
 
