@@ -48,13 +48,40 @@ whu-football-viz/
 ├─ js/data.js          # ★ 全部数据：球场、坐标、照片、时间线、来源（改这里即可增删内容）
 ├─ js/app.js           # 地图/渲染/交互逻辑（含 WGS-84→GCJ-02 转换、轮播、足迹、答题与海报）
 ├─ js/three-app.js     # 3D 场景：跑道/草坪实尺纹理、球门、看台、灯塔、地标、日夜切换（非 ES Module，兼容 file://）
+├─ js/boot-guard.js    # 3D 页启动看门狗（12 秒未完成初始化时提示失败原因）
 ├─ js/vendor/          # 本地化库：three.min.js（r147）、OrbitControls.js、leaflet.js（1.9.4）
 ├─ css/vendor/         # 本地化 leaflet.css 及其 images/ 图标
 ├─ images/             # 43 张照片（官方渠道下载，图注与来源见 data.js）
 ├─ data/               # 研究原始数据（矢量瓦片解析结果 labels-dump.txt、mvt-fields.txt、样式 JSON 等，可删）
 ├─ _verify/            # 高德卫星瓦片缓存（定位核对用，可删）
+├─ _baseline/          # 本地回退备份（格式规范整改前的原始版本，确认无误后可删）
+├─ CONTRIBUTING.md     # ★ 代码规范与待办清单（改代码前先看这个）
+├─ package.json        # 可选工具链脚本（lint / format / serve），不参与运行
+├─ eslint.config.mjs   # ESLint 配置（ESLint 9 flat config）
+├─ .editorconfig       # 编辑器缩进/换行统一
+├─ .prettierrc.json    # 格式化规则（配合 .prettierignore 排除 vendor 与原始数据）
+├─ .gitattributes      # 统一 LF 换行
 └─ README.md
 ```
+
+## 开发与代码规范
+
+改代码前请先读 **[CONTRIBUTING.md](CONTRIBUTING.md)** —— 它是规范的唯一出处（目录职责、语法基线、命名、`data.js` 数据 schema、按优先级排好的待办清单）。这里只列最常用的三条：
+
+- **没有构建步骤**：源文件即发布产物，双击即可运行；不要引入打包/转译，也不要改成 ES Module。
+- **语法基线 ES2017、不使用 `var`**：兼顾 `file://` 双击与微信内置浏览器；脚本内部实现一律包在 IIFE 里，只通过显式 `window.*` 对外暴露。
+- **可选工具链**（不安装也能正常运行）：
+
+```bash
+npm install          # 安装 eslint / @eslint/js / globals / prettier
+npm run lint         # 检查 js/ 下的第一方脚本
+npm run lint:fix     # 自动修复可机械修复的问题
+npm run format       # 统一格式（已排除 vendor、data/、_verify/、images/）
+npm run format:check # 只检查、不改写
+npm run serve        # python -m http.server 8000
+```
+
+> 首次运行 `npm run format` 会一次性重排格式（含把 `css/*.css` 的紧凑写法展开为一行一条声明、并按 IIFE 重新缩进 `js/three-app.js`）；这属于纯格式变更，建议先 `git init` 提交一次再执行，改动前后各看一眼页面。`_baseline/before-format/` 保留了整改前的原始文件，确认无误后可整目录删除。
 
 ## 数据与坐标说明
 
@@ -64,12 +91,12 @@ whu-football-viz/
 
 ## 照片来源（版权归原作者/摄影者）
 
-| 场地 | 主要来源 |
-|---|---|
-| 九一二操场 | 武汉晚报航拍（读特新闻）、武大新闻网军训组图（何志强）、武大官微（澎湃转载）、融媒体中心图库 |
-| 桂园田径场 | 武大体育部五人制决赛图集、武大官微（田春雨）、王景春 90 年代底片（澎湃转载） |
-| 工学部田径场 | 武大学生资助管理中心《生活在珞珈》（於嘉/常露露）、武大官微（田春雨）、网安学院师生运动会（孟罡/朱承基） |
-| 信息学部田径场 | 《生活在珞珈》（胡少杰）、武大体育部振兴杯决赛图集、武大官微（田春雨） |
+| 场地           | 主要来源                                                                                                 |
+| -------------- | -------------------------------------------------------------------------------------------------------- |
+| 九一二操场     | 武汉晚报航拍（读特新闻）、武大新闻网军训组图（何志强）、武大官微（澎湃转载）、融媒体中心图库             |
+| 桂园田径场     | 武大体育部五人制决赛图集、武大官微（田春雨）、王景春 90 年代底片（澎湃转载）                             |
+| 工学部田径场   | 武大学生资助管理中心《生活在珞珈》（於嘉/常露露）、武大官微（田春雨）、网安学院师生运动会（孟罡/朱承基） |
+| 信息学部田径场 | 《生活在珞珈》（胡少杰）、武大体育部振兴杯决赛图集、武大官微（田春雨）                                   |
 
 完整链接见页面底部"数据与版权"及 `js/data.js` 的 `sources`/`credits` 字段。
 

@@ -1,0 +1,20 @@
+{
+  "name": "whu-football-viz",
+  "version": "1.0.0",
+  "private": true,
+  "description": "振兴杯球场巡礼 · 武汉大学足球协会（纯静态站点，无构建步骤）",
+  "license": "UNLICENSED",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "serve": "python -m http.server 8000"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.13.0",
+    "eslint": "^9.13.0",
+    "globals": "^15.11.0",
+    "prettier": "^3.3.3"
+  }
+}

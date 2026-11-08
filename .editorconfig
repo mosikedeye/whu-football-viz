@@ -1,0 +1,19 @@
+# 编辑器统一配置 · 规范说明见 README「开发与代码规范」
+# 支持 EditorConfig 的编辑器（VS Code / JetBrains / Sublime / Vim）会自动读取本文件
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Markdown 允许行尾两个空格表示换行
+[*.md]
+trim_trailing_whitespace = false
+
+# 图片等二进制文件不做文本行处理
+[*.{jpg,jpeg,png,webp,gif,ico}]
+insert_final_newline = false

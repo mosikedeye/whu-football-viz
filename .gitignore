@@ -2,6 +2,10 @@
 data/
 _verify/
 
+# 工具产物与本地回退备份（备份说明见 _baseline/before-format/_BACKUP-README.md）
+node_modules/
+_baseline/
+
 # 系统文件
 Thumbs.db
 Desktop.ini

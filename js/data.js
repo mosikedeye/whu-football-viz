@@ -62,20 +62,76 @@ const WHU_FOOTBALL = {
         '操场右侧一排高大悬铃木，春来发新枝，秋来桐叶纷飞'
       ],
       photos: [
-        { f: '912-thepaper.jpg', c: '九一二操场全景', cr: '武汉大学融媒体中心图库', src: 'https://m.thepaper.cn/baijiahao_4292364' },
-        { f: '912-aerial-1.jpg', c: '九一二操场毕业典礼航拍（2017-06-22）', cr: '武汉晚报', src: 'https://m.dutenews.com/n/gallery/56285' },
-        { f: '912-aerial-3.jpg', c: '航拍：行政楼—九一二—理学院中轴线', cr: '武汉晚报', src: 'https://m.dutenews.com/n/gallery/56285' },
-        { f: '912-dawn.jpg', c: '晨曦中的 2017 届毕业典礼现场', cr: '武汉晚报', src: 'https://m.dutenews.com/n/gallery/56285' },
-        { f: '912-flag-2.jpeg', c: '2023 年国庆升旗仪式：师生齐聚"9·12"广场', cr: '摄影：马怡宁、唐嘉璐 / 武汉大学新闻网', src: 'https://news.whu.edu.cn/info/1007/443727.htm' },
-        { f: '912-flag-3.jpeg', c: '护旗手护卫五星红旗出旗（2023-10-01）', cr: '摄影：马怡宁、唐嘉璐 / 武汉大学新闻网', src: 'https://news.whu.edu.cn/info/1007/443727.htm' },
-        { f: '912-flag-1.jpeg', c: '九一二操场前的行政楼（2023 年国庆升旗仪式）', cr: '摄影：马怡宁、唐嘉璐 / 武汉大学新闻网', src: 'https://news.whu.edu.cn/info/1007/443727.htm' },
-        { f: '912-mil-1.png', c: '2016 级新生军训检阅：迷彩绿铺满操场', cr: '图：何志强 / 武汉大学新闻网', src: 'https://news.whu.edu.cn/info/1002/46995.htm' },
-        { f: '912-mil-6.png', c: '军训检阅：方阵从主席台前走过', cr: '图：何志强 / 武汉大学新闻网', src: 'https://news.whu.edu.cn/info/1002/46995.htm' },
-        { f: '912-mil-8.png', c: '意气风发的学子们从这里开启新生活', cr: '图：何志强 / 武汉大学新闻网', src: 'https://news.whu.edu.cn/info/1002/46995.htm' }
+        {
+          f: '912-thepaper.jpg',
+          c: '九一二操场全景',
+          cr: '武汉大学融媒体中心图库',
+          src: 'https://m.thepaper.cn/baijiahao_4292364'
+        },
+        {
+          f: '912-aerial-1.jpg',
+          c: '九一二操场毕业典礼航拍（2017-06-22）',
+          cr: '武汉晚报',
+          src: 'https://m.dutenews.com/n/gallery/56285'
+        },
+        {
+          f: '912-aerial-3.jpg',
+          c: '航拍：行政楼—九一二—理学院中轴线',
+          cr: '武汉晚报',
+          src: 'https://m.dutenews.com/n/gallery/56285'
+        },
+        {
+          f: '912-dawn.jpg',
+          c: '晨曦中的 2017 届毕业典礼现场',
+          cr: '武汉晚报',
+          src: 'https://m.dutenews.com/n/gallery/56285'
+        },
+        {
+          f: '912-flag-2.jpeg',
+          c: '2023 年国庆升旗仪式：师生齐聚"9·12"广场',
+          cr: '摄影：马怡宁、唐嘉璐 / 武汉大学新闻网',
+          src: 'https://news.whu.edu.cn/info/1007/443727.htm'
+        },
+        {
+          f: '912-flag-3.jpeg',
+          c: '护旗手护卫五星红旗出旗（2023-10-01）',
+          cr: '摄影：马怡宁、唐嘉璐 / 武汉大学新闻网',
+          src: 'https://news.whu.edu.cn/info/1007/443727.htm'
+        },
+        {
+          f: '912-flag-1.jpeg',
+          c: '九一二操场前的行政楼（2023 年国庆升旗仪式）',
+          cr: '摄影：马怡宁、唐嘉璐 / 武汉大学新闻网',
+          src: 'https://news.whu.edu.cn/info/1007/443727.htm'
+        },
+        {
+          f: '912-mil-1.png',
+          c: '2016 级新生军训检阅：迷彩绿铺满操场',
+          cr: '图：何志强 / 武汉大学新闻网',
+          src: 'https://news.whu.edu.cn/info/1002/46995.htm'
+        },
+        {
+          f: '912-mil-6.png',
+          c: '军训检阅：方阵从主席台前走过',
+          cr: '图：何志强 / 武汉大学新闻网',
+          src: 'https://news.whu.edu.cn/info/1002/46995.htm'
+        },
+        {
+          f: '912-mil-8.png',
+          c: '意气风发的学子们从这里开启新生活',
+          cr: '图：何志强 / 武汉大学新闻网',
+          src: 'https://news.whu.edu.cn/info/1002/46995.htm'
+        }
       ],
       sources: [
-        { label: '我校师生举行庆国庆升旗仪式（2023 · 九一二广场）· 武汉大学新闻网', url: 'https://news.whu.edu.cn/info/1007/443727.htm' },
-        { label: '珞珈百科｜武大有一个以日期命名的操场？（武汉大学官方微信·搜狐转载）', url: 'https://www.sohu.com/a/114229213_355701' },
+        {
+          label: '我校师生举行庆国庆升旗仪式（2023 · 九一二广场）· 武汉大学新闻网',
+          url: 'https://news.whu.edu.cn/info/1007/443727.htm'
+        },
+        {
+          label: '珞珈百科｜武大有一个以日期命名的操场？（武汉大学官方微信·搜狐转载）',
+          url: 'https://www.sohu.com/a/114229213_355701'
+        },
         { label: '珞珈七千"子弟兵"（组图）· 武汉大学新闻网', url: 'https://news.whu.edu.cn/info/1002/46995.htm' },
         { label: '航拍武大 7000 多人毕业典礼 · 武汉晚报', url: 'https://m.dutenews.com/n/gallery/56285' }
       ]
@@ -104,18 +160,62 @@ const WHU_FOOTBALL = {
         '梅园小操场（未名湖畔）以篮球、排球、羽毛球场地为主，与桂操共同构成文理学部运动带'
       ],
       photos: [
-        { f: 'guiyuan-thepaper.jpg', c: '桂园操场及宋卿体育馆', cr: '摄影：田春雨 / 武汉大学官方微信', src: 'https://m.thepaper.cn/baijiahao_4292364' },
-        { f: 'wrr-1.jpg', c: '2024 年五人制足球赛决赛 @桂园足球场', cr: '图：谭文希等 / 武汉大学体育部', src: 'https://tyb.whu.edu.cn/info/1003/6423.htm' },
-        { f: 'wrr-2.png', c: '男子组决赛：数学与统计学院一队点球战胜计算机学院一队', cr: '武汉大学体育部', src: 'https://tyb.whu.edu.cn/info/1003/6423.htm' },
-        { f: 'wrr-3.png', c: '女子组决赛：经管学院一队 5:0 新闻与传播学院', cr: '武汉大学体育部', src: 'https://tyb.whu.edu.cn/info/1003/6423.htm' },
-        { f: 'wrr-4.jpg', c: '赛前球员肃立向国旗敬礼', cr: '武汉大学体育部', src: 'https://tyb.whu.edu.cn/info/1003/6423.htm' },
-        { f: 'guiyuan-1990s-run.jpg', c: '90 年代桂园操场晨跑（煤渣跑道时期）', cr: '摄影：王景春 / 武汉大学官方微信·澎湃转载', src: 'https://m.thepaper.cn/baijiahao_9452795' },
-        { f: 'guiyuan-1990s-dance.jpg', c: '90 年代桂园操场上的金秋艺术节集体舞排练', cr: '摄影：王景春 / 武汉大学官方微信·澎湃转载', src: 'https://m.thepaper.cn/baijiahao_9452795' }
+        {
+          f: 'guiyuan-thepaper.jpg',
+          c: '桂园操场及宋卿体育馆',
+          cr: '摄影：田春雨 / 武汉大学官方微信',
+          src: 'https://m.thepaper.cn/baijiahao_4292364'
+        },
+        {
+          f: 'wrr-1.jpg',
+          c: '2024 年五人制足球赛决赛 @桂园足球场',
+          cr: '图：谭文希等 / 武汉大学体育部',
+          src: 'https://tyb.whu.edu.cn/info/1003/6423.htm'
+        },
+        {
+          f: 'wrr-2.png',
+          c: '男子组决赛：数学与统计学院一队点球战胜计算机学院一队',
+          cr: '武汉大学体育部',
+          src: 'https://tyb.whu.edu.cn/info/1003/6423.htm'
+        },
+        {
+          f: 'wrr-3.png',
+          c: '女子组决赛：经管学院一队 5:0 新闻与传播学院',
+          cr: '武汉大学体育部',
+          src: 'https://tyb.whu.edu.cn/info/1003/6423.htm'
+        },
+        {
+          f: 'wrr-4.jpg',
+          c: '赛前球员肃立向国旗敬礼',
+          cr: '武汉大学体育部',
+          src: 'https://tyb.whu.edu.cn/info/1003/6423.htm'
+        },
+        {
+          f: 'guiyuan-1990s-run.jpg',
+          c: '90 年代桂园操场晨跑（煤渣跑道时期）',
+          cr: '摄影：王景春 / 武汉大学官方微信·澎湃转载',
+          src: 'https://m.thepaper.cn/baijiahao_9452795'
+        },
+        {
+          f: 'guiyuan-1990s-dance.jpg',
+          c: '90 年代桂园操场上的金秋艺术节集体舞排练',
+          cr: '摄影：王景春 / 武汉大学官方微信·澎湃转载',
+          src: 'https://m.thepaper.cn/baijiahao_9452795'
+        }
       ],
       sources: [
-        { label: '少年意气，挥斥方"球"｜2024 年五人制足球赛决赛篇 · 武汉大学体育部', url: 'https://tyb.whu.edu.cn/info/1003/6423.htm' },
-        { label: '燃烧吧！武大人的卡路里 · 武汉大学官方微信（澎湃转载）', url: 'https://m.thepaper.cn/baijiahao_4292364' },
-        { label: '3 万多张底片重现 30 年前的武大 · 武汉大学官方微信（澎湃转载）', url: 'https://m.thepaper.cn/baijiahao_9452795' }
+        {
+          label: '少年意气，挥斥方"球"｜2024 年五人制足球赛决赛篇 · 武汉大学体育部',
+          url: 'https://tyb.whu.edu.cn/info/1003/6423.htm'
+        },
+        {
+          label: '燃烧吧！武大人的卡路里 · 武汉大学官方微信（澎湃转载）',
+          url: 'https://m.thepaper.cn/baijiahao_4292364'
+        },
+        {
+          label: '3 万多张底片重现 30 年前的武大 · 武汉大学官方微信（澎湃转载）',
+          url: 'https://m.thepaper.cn/baijiahao_9452795'
+        }
       ]
     },
 
@@ -142,18 +242,64 @@ const WHU_FOOTBALL = {
         '工学部新网球场（弘毅网球场）位于弘毅大道旁，网球课免费、平时开放收费（10 元/小时）'
       ],
       photos: [
-        { f: 'gongcao-thepaper.jpg', c: '工学部操场', cr: '摄影：田春雨 / 武汉大学官方微信', src: 'https://m.thepaper.cn/baijiahao_4292364' },
-        { f: 'gongcao-entry.jpg', c: '工操入口', cr: '摄影：於嘉、常露露 / 武大学生资助管理中心', src: 'https://zzgl.whu.edu.cn/info/1017/1029.htm' },
-        { f: 'gongcao-football.jpg', c: '工学部足球场（天然草坪）', cr: '武大学生资助管理中心', src: 'https://zzgl.whu.edu.cn/info/1017/1029.htm' },
-        { f: 'gongcao-2.jpg', c: '四百米田径场', cr: '武大学生资助管理中心', src: 'https://zzgl.whu.edu.cn/info/1017/1029.htm' },
-        { f: 'gongcao-3.jpg', c: '田径场看台与草坪', cr: '武大学生资助管理中心', src: 'https://zzgl.whu.edu.cn/info/1017/1029.htm' },
-        { f: 'songyuan-cse-1.jpg', c: '2023 首届师生田径运动会：网安学院师生方阵', cr: '供图：孟罡、朱承基 / 国家网络安全学院', src: 'https://cse.whu.edu.cn/info/1084/22281.htm' },
-        { f: 'songyuan-cse-3.jpg', c: '师生田径运动会赛场', cr: '供图：孟罡、朱承基 / 国家网络安全学院', src: 'https://cse.whu.edu.cn/info/1084/22281.htm' },
-        { f: 'songyuan-cse-4.jpg', c: '赛场上的教职工运动员', cr: '供图：孟罡、朱承基 / 国家网络安全学院', src: 'https://cse.whu.edu.cn/info/1084/22281.htm' }
+        {
+          f: 'gongcao-thepaper.jpg',
+          c: '工学部操场',
+          cr: '摄影：田春雨 / 武汉大学官方微信',
+          src: 'https://m.thepaper.cn/baijiahao_4292364'
+        },
+        {
+          f: 'gongcao-entry.jpg',
+          c: '工操入口',
+          cr: '摄影：於嘉、常露露 / 武大学生资助管理中心',
+          src: 'https://zzgl.whu.edu.cn/info/1017/1029.htm'
+        },
+        {
+          f: 'gongcao-football.jpg',
+          c: '工学部足球场（天然草坪）',
+          cr: '武大学生资助管理中心',
+          src: 'https://zzgl.whu.edu.cn/info/1017/1029.htm'
+        },
+        {
+          f: 'gongcao-2.jpg',
+          c: '四百米田径场',
+          cr: '武大学生资助管理中心',
+          src: 'https://zzgl.whu.edu.cn/info/1017/1029.htm'
+        },
+        {
+          f: 'gongcao-3.jpg',
+          c: '田径场看台与草坪',
+          cr: '武大学生资助管理中心',
+          src: 'https://zzgl.whu.edu.cn/info/1017/1029.htm'
+        },
+        {
+          f: 'songyuan-cse-1.jpg',
+          c: '2023 首届师生田径运动会：网安学院师生方阵',
+          cr: '供图：孟罡、朱承基 / 国家网络安全学院',
+          src: 'https://cse.whu.edu.cn/info/1084/22281.htm'
+        },
+        {
+          f: 'songyuan-cse-3.jpg',
+          c: '师生田径运动会赛场',
+          cr: '供图：孟罡、朱承基 / 国家网络安全学院',
+          src: 'https://cse.whu.edu.cn/info/1084/22281.htm'
+        },
+        {
+          f: 'songyuan-cse-4.jpg',
+          c: '赛场上的教职工运动员',
+          cr: '供图：孟罡、朱承基 / 国家网络安全学院',
+          src: 'https://cse.whu.edu.cn/info/1084/22281.htm'
+        }
       ],
       sources: [
-        { label: '生活在珞珈｜运动场地大盘点——工学部 · 武大学生资助管理中心', url: 'https://zzgl.whu.edu.cn/info/1017/1029.htm' },
-        { label: '竞技体育盛宴 献礼百卅校庆（首届师生田径运动会）· 国家网络安全学院', url: 'https://cse.whu.edu.cn/info/1084/22281.htm' },
+        {
+          label: '生活在珞珈｜运动场地大盘点——工学部 · 武大学生资助管理中心',
+          url: 'https://zzgl.whu.edu.cn/info/1017/1029.htm'
+        },
+        {
+          label: '竞技体育盛宴 献礼百卅校庆（首届师生田径运动会）· 国家网络安全学院',
+          url: 'https://cse.whu.edu.cn/info/1084/22281.htm'
+        },
         { label: '体育场馆（2006 年场馆统计）· 武汉大学体育部', url: 'https://tyb.whu.edu.cn/info/1041/1005.htm' }
       ]
     },
@@ -181,44 +327,128 @@ const WHU_FOOTBALL = {
         '校园环跑（"汉姆运动"）指定五大田径场之一'
       ],
       photos: [
-        { f: 'xincao-thepaper.jpg', c: '信息学部操场', cr: '摄影：田春雨 / 武汉大学官方微信', src: 'https://m.thepaper.cn/baijiahao_4292364' },
-        { f: 'xincao-1.jpg', c: '竹园操场（信操）人造草坪足球场', cr: '摄影：胡少杰 / 武大学生资助管理中心', src: 'https://zzgl.whu.edu.cn/info/1017/1030.htm' },
-        { f: 'xincao-2.jpg', c: '信操全景', cr: '摄影：胡少杰 / 武大学生资助管理中心', src: 'https://zzgl.whu.edu.cn/info/1017/1030.htm' },
-        { f: 'xinxi-map.png', c: '信部操场场地地图（原文插图）', cr: '武大学生资助管理中心', src: 'https://zzgl.whu.edu.cn/info/1017/1030.htm' },
-        { f: 'zxb-venue1.jpg', c: '2025"振兴杯"决赛现场：座无虚席', cr: '武汉大学体育部', src: 'https://tyb.whu.edu.cn/info/1003/28821.htm' },
-        { f: 'zxb-match.jpg', c: '振兴杯：绿茵场上的青春热血', cr: '武汉大学体育部', src: 'https://tyb.whu.edu.cn/info/1003/28821.htm' },
-        { f: 'zxb-men-super.jpg', c: '男子超级组冠军：计算机学院', cr: '武汉大学体育部', src: 'https://tyb.whu.edu.cn/info/1003/28821.htm' },
-        { f: 'zxb-women.jpg', c: '女子组冠军：文理联队', cr: '武汉大学体育部', src: 'https://tyb.whu.edu.cn/info/1003/28821.htm' }
+        {
+          f: 'xincao-thepaper.jpg',
+          c: '信息学部操场',
+          cr: '摄影：田春雨 / 武汉大学官方微信',
+          src: 'https://m.thepaper.cn/baijiahao_4292364'
+        },
+        {
+          f: 'xincao-1.jpg',
+          c: '竹园操场（信操）人造草坪足球场',
+          cr: '摄影：胡少杰 / 武大学生资助管理中心',
+          src: 'https://zzgl.whu.edu.cn/info/1017/1030.htm'
+        },
+        {
+          f: 'xincao-2.jpg',
+          c: '信操全景',
+          cr: '摄影：胡少杰 / 武大学生资助管理中心',
+          src: 'https://zzgl.whu.edu.cn/info/1017/1030.htm'
+        },
+        {
+          f: 'xinxi-map.png',
+          c: '信部操场场地地图（原文插图）',
+          cr: '武大学生资助管理中心',
+          src: 'https://zzgl.whu.edu.cn/info/1017/1030.htm'
+        },
+        {
+          f: 'zxb-venue1.jpg',
+          c: '2025"振兴杯"决赛现场：座无虚席',
+          cr: '武汉大学体育部',
+          src: 'https://tyb.whu.edu.cn/info/1003/28821.htm'
+        },
+        {
+          f: 'zxb-match.jpg',
+          c: '振兴杯：绿茵场上的青春热血',
+          cr: '武汉大学体育部',
+          src: 'https://tyb.whu.edu.cn/info/1003/28821.htm'
+        },
+        {
+          f: 'zxb-men-super.jpg',
+          c: '男子超级组冠军：计算机学院',
+          cr: '武汉大学体育部',
+          src: 'https://tyb.whu.edu.cn/info/1003/28821.htm'
+        },
+        {
+          f: 'zxb-women.jpg',
+          c: '女子组冠军：文理联队',
+          cr: '武汉大学体育部',
+          src: 'https://tyb.whu.edu.cn/info/1003/28821.htm'
+        }
       ],
       sources: [
-        { label: '生活在珞珈｜运动场地大盘点——信息学部 · 武大学生资助管理中心', url: 'https://zzgl.whu.edu.cn/info/1017/1030.htm' },
-        { label: '武汉大学 2025 年"振兴杯"足球赛圆满落幕 · 武汉大学体育部', url: 'https://tyb.whu.edu.cn/info/1003/28821.htm' }
+        {
+          label: '生活在珞珈｜运动场地大盘点——信息学部 · 武大学生资助管理中心',
+          url: 'https://zzgl.whu.edu.cn/info/1017/1030.htm'
+        },
+        {
+          label: '武汉大学 2025 年"振兴杯"足球赛圆满落幕 · 武汉大学体育部',
+          url: 'https://tyb.whu.edu.cn/info/1003/28821.htm'
+        }
       ]
     }
   ],
 
   /* ---------- 其他带草坪/跑道的场地（非大学部标准足球场） ---------- */
   supplemental: [
-    { id: 'meiyuan', name: '梅园操场', note: '俗称"梅园小操场"，位于未名湖畔，以篮球（8 片）、排球（5 片）、羽毛球（8 片）场地为主；火炬杯排球赛、腾飞杯篮球赛的主要举办地。', wgs: { lat: 30.54088, lng: 114.35938 } },
-    { id: 'fuzhong', name: '武大附中运动场', note: '武汉大学附属中学的小型田径场（约 200~300 米跑道），位于信息学部东北、文理学部南侧。', wgs: { lat: 30.53249, lng: 114.35756 } },
-    { id: 'fuxiao1', name: '武大一附小运动场', note: '武汉大学第一附属小学运动场，含约 61×46 米草坪场地，位于文理学部南侧（生命科学学院以西）。', wgs: { lat: 30.53446, lng: 114.35561 } },
-    { id: 'fuxiao2', name: '武大二附小运动场', note: '武汉大学第二附属小学运动场，含约 54×38 米草坪场地，位于文理学部西侧（自强超市附近）。', wgs: { lat: 30.54296, lng: 114.35280 } }
+    {
+      id: 'meiyuan',
+      name: '梅园操场',
+      note: '俗称"梅园小操场"，位于未名湖畔，以篮球（8 片）、排球（5 片）、羽毛球（8 片）场地为主；火炬杯排球赛、腾飞杯篮球赛的主要举办地。',
+      wgs: { lat: 30.54088, lng: 114.35938 }
+    },
+    {
+      id: 'fuzhong',
+      name: '武大附中运动场',
+      note: '武汉大学附属中学的小型田径场（约 200~300 米跑道），位于信息学部东北、文理学部南侧。',
+      wgs: { lat: 30.53249, lng: 114.35756 }
+    },
+    {
+      id: 'fuxiao1',
+      name: '武大一附小运动场',
+      note: '武汉大学第一附属小学运动场，含约 61×46 米草坪场地，位于文理学部南侧（生命科学学院以西）。',
+      wgs: { lat: 30.53446, lng: 114.35561 }
+    },
+    {
+      id: 'fuxiao2',
+      name: '武大二附小运动场',
+      note: '武汉大学第二附属小学运动场，含约 54×38 米草坪场地，位于文理学部西侧（自强超市附近）。',
+      wgs: { lat: 30.54296, lng: 114.3528 }
+    }
   ],
 
   /* ---------- 时间线 ---------- */
   timeline: [
-    { y: '1930s', t: '珞珈山新校舍开工，理学院与老工学院之间因山就势修筑操场（含足球场、排球场等多个场地），开尔斯的"土方填谷"造就九一二操场雏形。' },
+    {
+      y: '1930s',
+      t: '珞珈山新校舍开工，理学院与老工学院之间因山就势修筑操场（含足球场、排球场等多个场地），开尔斯的"土方填谷"造就九一二操场雏形。'
+    },
     { y: '1936', t: '宋卿体育馆竣工，坐落桂园田径场东侧。' },
     { y: '1937', t: '抗日战争爆发后，九一二操场上举行军官训练团检阅，将士随后奔赴战场。' },
     { y: '1958.9.12', t: '毛泽东主席视察武汉大学，在行政楼前操场接见武昌地区高校师生——操场自此得名"九一二"。' },
-    { y: '1990s', t: '桂园操场还是煤渣跑道；后经改造成为红绿相间的塑胶跑道（王景春校友 3 万余张底片记录下这段岁月）。' },
+    {
+      y: '1990s',
+      t: '桂园操场还是煤渣跑道；后经改造成为红绿相间的塑胶跑道（王景春校友 3 万余张底片记录下这段岁月）。'
+    },
     { y: '2001', t: '九一二操场（奥场）扩建为标准化运动场；全国大学生足球赛武汉赛区比赛在工学部田径场举行。' },
-    { y: '2006', t: '体育部统计：全校 400 米标准田径场 5 个（工学部为 3300 座二类标准体育场），人造草皮足球场 3 个、天然草皮足球场 2 个，场地总面积 16 万余平方米。' },
+    {
+      y: '2006',
+      t: '体育部统计：全校 400 米标准田径场 5 个（工学部为 3300 座二类标准体育场），人造草皮足球场 3 个、天然草皮足球场 2 个，场地总面积 16 万余平方米。'
+    },
     { y: '2017.6.22', t: '7000 余名毕业生的毕业典礼在九一二操场举行，航拍画面成为武大经典影像。' },
-    { y: '2019', t: '武汉大学官方微信盘点校园运动场地：九一二、桂园、工学部、信息学部等 400 米标准田径场是学生日常锻炼的主要场所；卓尔体育馆承担军运会比赛任务。' },
+    {
+      y: '2019',
+      t: '武汉大学官方微信盘点校园运动场地：九一二、桂园、工学部、信息学部等 400 米标准田径场是学生日常锻炼的主要场所；卓尔体育馆承担军运会比赛任务。'
+    },
     { y: '2023.11', t: '首届武汉大学师生田径运动会在松园操场（工学部田径场）举行。' },
-    { y: '2024.4', t: '全校学生校园五人制足球赛决赛在桂园足球场举行：数学与统计学院一队、经济与管理学院一队分获男女冠军。' },
-    { y: '2025.12', t: '"振兴杯"足球赛决赛在信息学部操场举行：41 支队伍、872 名运动员；计算机学院、文学院、文理联队分获男子超级组、男子甲级组、女子组冠军。' }
+    {
+      y: '2024.4',
+      t: '全校学生校园五人制足球赛决赛在桂园足球场举行：数学与统计学院一队、经济与管理学院一队分获男女冠军。'
+    },
+    {
+      y: '2025.12',
+      t: '"振兴杯"足球赛决赛在信息学部操场举行：41 支队伍、872 名运动员；计算机学院、文学院、文理联队分获男子超级组、男子甲级组、女子组冠军。'
+    }
   ],
 
   /* ---------- 总览文案 ---------- */
@@ -234,18 +464,42 @@ const WHU_FOOTBALL = {
 
   /* ---------- 全站资料来源 ---------- */
   credits: [
-    { label: '武汉大学学生资助管理中心《生活在珞珈》运动场地大盘点（工学部/信息学部）', url: 'https://zzgl.whu.edu.cn/xszl.htm' },
+    {
+      label: '武汉大学学生资助管理中心《生活在珞珈》运动场地大盘点（工学部/信息学部）',
+      url: 'https://zzgl.whu.edu.cn/xszl.htm'
+    },
     { label: '武汉大学体育部（振兴杯足球赛、五人制足球赛、体育场馆统计）', url: 'https://tyb.whu.edu.cn/' },
-    { label: '动力与机械学院《学院新生足球队勇夺2026年"新生杯"冠军》', url: 'https://pmc.whu.edu.cn/info/1088/174111.htm' },
-    { label: '武汉大学足球协会微信公众号：2025 年足球新生杯决赛、2026 年"足协杯"男子组战报', url: 'http://mp.weixin.qq.com/s?__biz=MzA5NjIyMDE0OQ==&mid=2654504990&idx=1&sn=529674b9e4b4cdef9bdaead2c800e7d3' },
+    {
+      label: '动力与机械学院《学院新生足球队勇夺2026年"新生杯"冠军》',
+      url: 'https://pmc.whu.edu.cn/info/1088/174111.htm'
+    },
+    {
+      label: '武汉大学足球协会微信公众号：2025 年足球新生杯决赛、2026 年"足协杯"男子组战报',
+      url: 'http://mp.weixin.qq.com/s?__biz=MzA5NjIyMDE0OQ==&mid=2654504990&idx=1&sn=529674b9e4b4cdef9bdaead2c800e7d3'
+    },
     { label: '武汉大学新闻网《珞珈七千"子弟兵"（组图）》', url: 'https://news.whu.edu.cn/info/1002/46995.htm' },
-    { label: '武汉大学官方微信（澎湃转载）：《燃烧吧！武大人的卡路里》《3 万多张底片重现 30 年前的武大》', url: 'https://m.thepaper.cn/baijiahao_4292364' },
+    {
+      label: '武汉大学官方微信（澎湃转载）：《燃烧吧！武大人的卡路里》《3 万多张底片重现 30 年前的武大》',
+      url: 'https://m.thepaper.cn/baijiahao_4292364'
+    },
     { label: '武汉晚报（读特新闻）：航拍武汉大学 7000 多人毕业典礼', url: 'https://m.dutenews.com/n/gallery/56285' },
-    { label: '武汉大学官方微信（搜狐转载）：《珞珈百科｜武大有一个以日期命名的操场？》', url: 'https://www.sohu.com/a/114229213_355701' },
-    { label: '武汉大学国家网络安全学院：《竞技体育盛宴 献礼百卅校庆》', url: 'https://cse.whu.edu.cn/info/1084/22281.htm' },
-    { label: '武汉大学官网（英文）：Sports & Facilities', url: 'https://en.whu.edu.cn/jzbf/Campus_Life1/Sports___Facilities.htm' },
+    {
+      label: '武汉大学官方微信（搜狐转载）：《珞珈百科｜武大有一个以日期命名的操场？》',
+      url: 'https://www.sohu.com/a/114229213_355701'
+    },
+    {
+      label: '武汉大学国家网络安全学院：《竞技体育盛宴 献礼百卅校庆》',
+      url: 'https://cse.whu.edu.cn/info/1084/22281.htm'
+    },
+    {
+      label: '武汉大学官网（英文）：Sports & Facilities',
+      url: 'https://en.whu.edu.cn/jzbf/Campus_Life1/Sports___Facilities.htm'
+    },
     { label: '动力与机械学院《娱乐武大》（2004 年场馆记录）', url: 'https://pmc.whu.edu.cn/info/1090/11454.htm' },
-    { label: '场地坐标：武汉大学"四季电子地图"（Urban Computing & Visualization Lab）公开矢量数据，WGS-84', url: 'http://139.224.215.240:1234/' },
+    {
+      label: '场地坐标：武汉大学"四季电子地图"（Urban Computing & Visualization Lab）公开矢量数据，WGS-84',
+      url: 'http://139.224.215.240:1234/'
+    },
     { label: '底图：高德地图（卫星影像 / 电子地图，GCJ-02）；地图引擎：Leaflet', url: 'https://leafletjs.com/' }
   ]
 };

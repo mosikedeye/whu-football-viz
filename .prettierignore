@@ -1,0 +1,19 @@
+# 第三方库：保持上游原样，不参与格式化
+js/vendor/
+css/vendor/
+
+# 研究与抓取原始数据（矢量瓦片解析产物、抓取缓存、样式 JSON）
+data/
+_verify/
+
+# 本地回退备份（见 _baseline/README.md）
+_baseline/
+
+# 图片等二进制资源
+images/
+
+# 压缩产物
+*.min.js
+
+# 由 npm 维护，交给它自己管理格式
+package-lock.json

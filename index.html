@@ -1,233 +1,285 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>振兴杯球场巡礼 · 武汉大学足球协会</title>
-  <meta property="og:title" content="振兴杯球场巡礼 · 武汉大学足球协会">
-  <meta property="og:description" content="奥场（九一二）、桂操（桂园）、工操（松园）、信操（竹园）——四大振兴杯比赛球场巡礼：照片、地图、赛事与 3D 全景">
-  <meta property="og:image" content="images/912-aerial-1.jpg">
-  <meta name="description" content="武汉大学足球协会出品："振兴杯"大学生足球联赛球场巡礼——奥场（九一二）、桂操（桂园）、工操（松园）、信操（竹园）四大比赛球场，含照片、地图、赛事与 3D 球场。">
-  <link rel="stylesheet" href="css/vendor/leaflet.css">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏆</text></svg>">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>振兴杯球场巡礼 · 武汉大学足球协会</title>
+    <meta property="og:title" content="振兴杯球场巡礼 · 武汉大学足球协会" />
+    <meta
+      property="og:description"
+      content="奥场（九一二）、桂操（桂园）、工操（松园）、信操（竹园）——四大振兴杯比赛球场巡礼：照片、地图、赛事与 3D 全景"
+    />
+    <meta property="og:image" content="images/912-aerial-1.jpg" />
+    <meta
+      name="description"
+      content="武汉大学足球协会出品：“振兴杯”大学生足球联赛球场巡礼——奥场（九一二）、桂操（桂园）、工操（松园）、信操（竹园）四大比赛球场，含照片、地图、赛事与 3D 球场。"
+    />
+    <link rel="stylesheet" href="css/vendor/leaflet.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏆</text></svg>"
+    />
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav">
+        <span class="nav-logo">🏆 振兴杯 · 球场巡礼</span>
+        <a href="#cup">赛事</a>
+        <a href="#venues">球场巡礼</a>
+        <a href="#footprint">我的足迹</a>
+        <a href="#quiz">冷知识</a>
+        <a href="#vtest">球场测试</a>
+        <a href="#map-section">地图</a>
+        <a href="3d.html">🎮 3D 球场</a>
+        <a href="#timeline">时间线</a>
+        <a href="#more">更多场地</a>
+        <a href="#about">关于</a>
+      </nav>
+    </header>
 
-<header class="site-header">
-  <nav class="nav">
-    <span class="nav-logo">🏆 振兴杯 · 球场巡礼</span>
-    <a href="#cup">赛事</a>
-    <a href="#venues">球场巡礼</a>
-    <a href="#footprint">我的足迹</a>
-    <a href="#quiz">冷知识</a>
-    <a href="#vtest">球场测试</a>
-    <a href="#map-section">地图</a>
-    <a href="3d.html">🎮 3D 球场</a>
-    <a href="#timeline">时间线</a>
-    <a href="#more">更多场地</a>
-    <a href="#about">关于</a>
-  </nav>
-</header>
+    <section class="hero" id="hero">
+      <div class="hero-bg" role="img" aria-label="九一二操场航拍"></div>
+      <div class="hero-mask"></div>
+      <div class="hero-content">
+        <div class="hero-badge">武汉大学"振兴杯"大学生足球联赛</div>
+        <h1>球场巡礼</h1>
+        <p class="hero-sub">以球会友 · 以赛育人 —— 四大振兴杯比赛球场</p>
+        <p class="hero-desc">奥场（九一二）· 桂操（桂园）· 工操（松园）· 信操（竹园）</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#venues">开始巡礼</a>
+          <a class="btn btn-ghost" href="#cup">赛事速览</a>
+          <a class="btn btn-ghost" href="3d.html">🎮 3D 球场</a>
+        </div>
+      </div>
+      <div class="hero-credit">出品：武汉大学足球协会 ｜ 背景：九一二操场毕业典礼航拍 · 武汉晚报</div>
+    </section>
 
-<section class="hero" id="hero">
-  <div class="hero-bg" role="img" aria-label="九一二操场航拍"></div>
-  <div class="hero-mask"></div>
-  <div class="hero-content">
-    <div class="hero-badge">武汉大学"振兴杯"大学生足球联赛</div>
-    <h1>球场巡礼</h1>
-    <p class="hero-sub">以球会友 · 以赛育人 —— 四大振兴杯比赛球场</p>
-    <p class="hero-desc">奥场（九一二）· 桂操（桂园）· 工操（松园）· 信操（竹园）</p>
-    <div class="hero-actions">
-      <a class="btn btn-primary" href="#venues">开始巡礼</a>
-      <a class="btn btn-ghost" href="#cup">赛事速览</a>
-      <a class="btn btn-ghost" href="3d.html">🎮 3D 球场</a>
+    <section class="stats-bar">
+      <div class="stat"><b id="stat-cupvenues">4</b><span>振兴杯比赛球场</span></div>
+      <div class="stat"><b id="stat-teams">41</b><span>支参赛队伍（2025）</span></div>
+      <div class="stat"><b id="stat-athletes">872</b><span>名参赛运动员</span></div>
+      <div class="stat"><b id="stat-venues">4</b><span>片巡礼绿茵</span></div>
+    </section>
+
+    <main>
+      <!-- ================= 赛事 ================= -->
+      <section id="cup" class="section">
+        <h2 class="section-title">赛事 · 校园足球</h2>
+        <p class="section-desc">
+          新生杯、振兴杯、五人制、足协杯——武大校园足球的四大传统赛事。巡礼之前，先从振兴杯说起。
+        </p>
+        <blockquote class="big-quote">
+          <p id="cupQuote"></p>
+          <footer id="cupQuoteFrom"></footer>
+        </blockquote>
+        <div class="cup-grid">
+          <div class="cup-info">
+            <h3>2025 年赛事速览</h3>
+            <ul id="cupMeta"></ul>
+          </div>
+          <div class="cup-info">
+            <h3>2025 冠军领奖台</h3>
+            <div class="podium" id="podium"></div>
+            <a class="vc-map-btn cup-final-btn" href="#venue-xinxi">📍 走进决赛场地：信息学部操场</a>
+          </div>
+        </div>
+        <div class="overview-grid">
+          <div class="overview-text" id="overviewText"></div>
+          <figure class="overview-photo" id="overviewPhoto"></figure>
+        </div>
+        <div class="event-cards">
+          <div class="event-card">
+            <h3>🌱 "新生杯"足球赛</h3>
+            <p>
+              武汉大学足球协会主办的年度新生足球联赛，面向大一新生，通常在秋季学期开赛，是新生入校后的第一项正式比赛。小组赛+淘汰赛赛制，桂园操场、信息学部操场等场地轮番开球。
+            </p>
+            <p class="event-meta">2026 年决赛：动机联队 3:0 弘毅学堂夺冠；2025 年决赛于 10 月 31 日在桂园操场举行</p>
+          </div>
+          <div class="event-card">
+            <h3>🏆 "振兴杯"大学生足球联赛</h3>
+            <p>
+              校体育运动委员会主办的校园足球传统盛事。2025 年赛事吸引
+              <b>41 支队伍、872 名运动员</b
+              >参赛，设男子超级组、男子甲级组与女子组，小组赛+淘汰赛赛制，决赛在信息学部操场举行。
+            </p>
+            <p class="event-meta">冠军（2025）：计算机学院（男超）· 文学院（男甲）· 文理联队（女）</p>
+          </div>
+          <div class="event-card">
+            <h3>⚡ 全校五人制足球赛</h3>
+            <p>
+              春季赛事，2024
+              年决赛于桂园足球场（带挡板的五人制场地）举行，持续近三周。"足球碰撞挡板上那铿锵有力的声音"是这项赛事的独特记忆。
+            </p>
+            <p class="event-meta">冠军（2024）：数学与统计学院一队（男）· 经济与管理学院一队（女）</p>
+          </div>
+          <div class="event-card">
+            <h3>🏅 "足协杯"足球赛</h3>
+            <p>
+              武汉大学足球协会主办的传统赛事，自由组队报名、小组赛+淘汰赛，通常在春季学期举行，比赛覆盖四个校区；2025
+              年赛事设五人制与八人制两个组别。
+            </p>
+            <p class="event-meta">2026 年男子组比赛在桂园操场、信息学部操场等地展开</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 球场巡礼 ================= -->
+      <section id="venues" class="section section-alt">
+        <h2 class="section-title">球场巡礼 · 四大绿茵</h2>
+        <p class="section-desc">
+          "从奥场的历史沉淀到信操的荣耀见证，四大球场承载着武大足球的百年记忆。"——武汉大学体育部（2025）。四大球场即振兴杯的比赛场地。
+        </p>
+        <div class="filters" id="campusFilters">
+          <button class="chip active" data-campus="all">全部</button>
+          <button class="chip" data-venue-filter="912">九一二操场</button>
+          <button class="chip" data-venue-filter="guiyuan">桂园操场</button>
+          <button class="chip" data-campus="gx">工学部</button>
+          <button class="chip" data-campus="xx">信息学部</button>
+        </div>
+        <div class="venue-list" id="venueList"><!-- JS 渲染 --></div>
+      </section>
+
+      <!-- ================= 我的球场足迹 ================= -->
+      <section id="footprint" class="section">
+        <h2 class="section-title">我的球场足迹</h2>
+        <p class="section-desc">
+          点亮你踢过球、跑过步、看过比赛的场地——生成专属海报，分享给你的球搭子。（足迹保存在本机浏览器，不会上传）
+        </p>
+        <div class="fp-grid" id="fpGrid"><!-- JS 渲染 --></div>
+        <div class="fp-summary">
+          <div class="fp-progress"><div class="fp-progress-bar" id="fpBar"></div></div>
+          <div class="fp-count" id="fpCount">已点亮 0 / 8 座场地</div>
+          <div class="fp-rank" id="fpRank"></div>
+        </div>
+        <div class="fp-actions">
+          <button class="btn btn-primary" id="fpPoster">🖼 生成我的分享海报</button>
+          <button class="btn btn-ghost" id="fpReset">清空足迹</button>
+        </div>
+      </section>
+
+      <!-- ================= 冷知识挑战 ================= -->
+      <section id="quiz" class="section">
+        <h2 class="section-title">⚡ 武大足球冷知识挑战</h2>
+        <p class="section-desc">
+          10 道题，全部出自本站的绿茵时间线与赛事数据。答完生成段位与成绩单海报——敢不敢发给你的球搭子比一比？
+        </p>
+        <div class="quiz-box" id="quizBox"><!-- JS 渲染 --></div>
+      </section>
+
+      <!-- ================= 球场人格测试 ================= -->
+      <section id="vtest" class="section">
+        <h2 class="section-title">🔮 你是哪座武大球场？</h2>
+        <p class="section-desc">
+          4 道题、30 秒，凭直觉作答——测测你的性格最像四大振兴杯比赛球场中的哪一座，附专属人格解读与结果海报。
+        </p>
+        <div class="quiz-box" id="vtestBox"><!-- JS 渲染 --></div>
+      </section>
+
+      <!-- ================= 地图 ================= -->
+      <section id="map-section" class="section">
+        <h2 class="section-title">球场地图</h2>
+        <p class="section-desc">
+          四大绿茵分布在珞珈山四周，带 🏆
+          标记的为振兴杯比赛球场。点击标记查看详情；开启「校准模式」后可拖动标记微调位置（保存在本地浏览器）。
+        </p>
+        <div class="map-toolbar">
+          <div class="layer-switch" id="layerSwitch">
+            <button data-layer="sat" class="active">卫星影像</button>
+            <button data-layer="road">电子地图</button>
+          </div>
+          <div class="map-tools">
+            <label class="calib-toggle"><input type="checkbox" id="calibMode" /> 🔧 校准模式（拖动标记）</label>
+            <button class="btn-mini" id="resetCalib" title="清除本地校准">重置校准</button>
+            <label class="calib-toggle"><input type="checkbox" id="showSupp" /> 显示附属学校/梅园场地</label>
+          </div>
+        </div>
+        <div id="map" role="region" tabindex="0" aria-label="武汉大学足球场地图（获得焦点后可用方向键平移）"></div>
+        <p class="map-note">
+          坐标来源：武汉大学"四季电子地图"（Urban Computing &amp; Visualization
+          Lab）公开矢量数据（WGS-84），页面内自动转换为 GCJ-02
+          以匹配高德底图；足球场白色虚线框按矢量数据的草坪多边形尺寸绘制。
+        </p>
+      </section>
+
+      <!-- ================= 时间线 ================= -->
+      <section id="timeline" class="section section-alt">
+        <h2 class="section-title">绿茵时间线</h2>
+        <p class="section-desc">从开尔斯的"土方填谷"到振兴杯的点球大战。</p>
+        <ol class="timeline" id="timelineList">
+          <!-- JS 渲染 -->
+        </ol>
+      </section>
+
+      <!-- ================= 其他场地 ================= -->
+      <section id="more" class="section">
+        <h2 class="section-title">其他运动场地</h2>
+        <p class="section-desc">除四大比赛球场外，校园内还有这些带草坪或跑道的场地（点击可在地图上定位）：</p>
+        <div class="supp-grid" id="suppGrid"><!-- JS 渲染 --></div>
+      </section>
+
+      <!-- ================= 关于 ================= -->
+      <section id="about" class="section section-alt">
+        <h2 class="section-title">数据与版权</h2>
+        <div class="about-grid">
+          <div>
+            <h3>数据来源</h3>
+            <ul class="credit-list" id="creditList">
+              <!-- JS 渲染 -->
+            </ul>
+            <h3>坐标说明</h3>
+            <p class="about-p">
+              场地坐标提取自武汉大学"四季电子地图"（Urban Computing &amp; Visualization Lab，Mapbox 矢量瓦片，WGS-84
+              坐标系）中的操场多边形、足球场草坪多边形与 POI
+              标注，并经周边建筑（行政楼、宋卿体育馆、星湖等）交叉验证；前端使用标准 WGS-84 → GCJ-02
+              转换以匹配高德底图。若发现标记偏移，可开启地图上的「校准模式」拖动修正（保存在你的浏览器本地）。
+            </p>
+          </div>
+          <div>
+            <h3>出品与版权</h3>
+            <p class="about-p">
+              本页面由<b>武汉大学足球协会</b>制作，用于"振兴杯"大学生足球联赛球场巡礼。所有照片均来自互联网公开渠道（武汉大学各部门官网、官方微信公众号及其媒体转载），版权归原作者与摄影者所有，各图注均已标注来源，仅供<b>校园非商业使用</b>；如需对外发布或商用，请替换为自有授权的照片或取得原作者授权。权利人如有异议，请联系足协删除。
+            </p>
+            <h3>技术栈</h3>
+            <p class="about-p">
+              纯静态页面：Leaflet + 高德栅格瓦片（卫星 style=6 / 路网 style=8）+ 原生 JavaScript；3D
+              页（<code>3d.html</code>）使用 three.js r147。全部 JS/CSS 库已本地化于 <code>js/vendor</code> 与
+              <code>css/vendor</code>，无需构建与联网加载库，双击 <code>index.html</code> 即可运行（仅地图瓦片需联网）。
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>振兴杯球场巡礼 ｜ 出品：武汉大学足球协会 ｜ 2026 年 7 月</p>
+      <p class="footer-quote">"珞珈绿茵之上，青春永不落幕。"</p>
+      <p class="footer-note">照片与史料来自校方公开渠道（详见"数据与版权"），仅供校园非商业使用</p>
+    </footer>
+
+    <!-- 灯箱 -->
+    <div class="lightbox" id="lightbox" aria-hidden="true">
+      <button class="lb-close" id="lbClose" aria-label="关闭">×</button>
+      <button class="lb-prev" id="lbPrev" aria-label="上一张">‹</button>
+      <figure>
+        <img id="lbImg" src="" alt="" />
+        <figcaption><span id="lbCap"></span><br /><small id="lbCr"></small></figcaption>
+      </figure>
+      <button class="lb-next" id="lbNext" aria-label="下一张">›</button>
     </div>
-  </div>
-  <div class="hero-credit">出品：武汉大学足球协会 ｜ 背景：九一二操场毕业典礼航拍 · 武汉晚报</div>
-</section>
 
-<section class="stats-bar">
-  <div class="stat"><b id="stat-cupvenues">4</b><span>振兴杯比赛球场</span></div>
-  <div class="stat"><b id="stat-teams">41</b><span>支参赛队伍（2025）</span></div>
-  <div class="stat"><b id="stat-athletes">872</b><span>名参赛运动员</span></div>
-  <div class="stat"><b id="stat-venues">4</b><span>片巡礼绿茵</span></div>
-</section>
-
-<main>
-  <!-- ================= 赛事 ================= -->
-  <section id="cup" class="section">
-    <h2 class="section-title">赛事 · 校园足球</h2>
-    <p class="section-desc">新生杯、振兴杯、五人制、足协杯——武大校园足球的四大传统赛事。巡礼之前，先从振兴杯说起。</p>
-    <blockquote class="big-quote">
-      <p id="cupQuote"></p>
-      <footer id="cupQuoteFrom"></footer>
-    </blockquote>
-    <div class="cup-grid">
-      <div class="cup-info">
-        <h3>2025 年赛事速览</h3>
-        <ul id="cupMeta"></ul>
-      </div>
-      <div class="cup-info">
-        <h3>2025 冠军领奖台</h3>
-        <div class="podium" id="podium"></div>
-        <a class="vc-map-btn cup-final-btn" href="#venue-xinxi">📍 走进决赛场地：信息学部操场</a>
+    <!-- 分享海报 -->
+    <div class="poster-modal" id="posterModal" aria-hidden="true">
+      <button class="lb-close" id="pmClose" aria-label="关闭">×</button>
+      <div class="pm-box">
+        <img id="pmImg" alt="我的武大球场足迹分享海报" />
+        <p class="pm-tip" id="pmTip">长按图片保存 / 转发给朋友</p>
+        <a class="btn btn-primary pm-dl" id="pmDl" download="我的武大球场足迹.png" href="#">⬇ 下载海报</a>
       </div>
     </div>
-    <div class="overview-grid">
-      <div class="overview-text" id="overviewText"></div>
-      <figure class="overview-photo" id="overviewPhoto"></figure>
-    </div>
-    <div class="event-cards">
-      <div class="event-card">
-        <h3>🌱 "新生杯"足球赛</h3>
-        <p>武汉大学足球协会主办的年度新生足球联赛，面向大一新生，通常在秋季学期开赛，是新生入校后的第一项正式比赛。小组赛+淘汰赛赛制，桂园操场、信息学部操场等场地轮番开球。</p>
-        <p class="event-meta">2026 年决赛：动机联队 3:0 弘毅学堂夺冠；2025 年决赛于 10 月 31 日在桂园操场举行</p>
-      </div>
-      <div class="event-card">
-        <h3>🏆 "振兴杯"大学生足球联赛</h3>
-        <p>校体育运动委员会主办的校园足球传统盛事。2025 年赛事吸引 <b>41 支队伍、872 名运动员</b>参赛，设男子超级组、男子甲级组与女子组，小组赛+淘汰赛赛制，决赛在信息学部操场举行。</p>
-        <p class="event-meta">冠军（2025）：计算机学院（男超）· 文学院（男甲）· 文理联队（女）</p>
-      </div>
-      <div class="event-card">
-        <h3>⚡ 全校五人制足球赛</h3>
-        <p>春季赛事，2024 年决赛于桂园足球场（带挡板的五人制场地）举行，持续近三周。"足球碰撞挡板上那铿锵有力的声音"是这项赛事的独特记忆。</p>
-        <p class="event-meta">冠军（2024）：数学与统计学院一队（男）· 经济与管理学院一队（女）</p>
-      </div>
-      <div class="event-card">
-        <h3>🏅 "足协杯"足球赛</h3>
-        <p>武汉大学足球协会主办的传统赛事，自由组队报名、小组赛+淘汰赛，通常在春季学期举行，比赛覆盖四个校区；2025 年赛事设五人制与八人制两个组别。</p>
-        <p class="event-meta">2026 年男子组比赛在桂园操场、信息学部操场等地展开</p>
-      </div>
-    </div>
-  </section>
 
-  <!-- ================= 球场巡礼 ================= -->
-  <section id="venues" class="section section-alt">
-    <h2 class="section-title">球场巡礼 · 四大绿茵</h2>
-    <p class="section-desc">"从奥场的历史沉淀到信操的荣耀见证，四大球场承载着武大足球的百年记忆。"——武汉大学体育部（2025）。四大球场即振兴杯的比赛场地。</p>
-    <div class="filters" id="campusFilters">
-      <button class="chip active" data-campus="all">全部</button>
-      <button class="chip" data-venue-filter="912">九一二操场</button>
-      <button class="chip" data-venue-filter="guiyuan">桂园操场</button>
-      <button class="chip" data-campus="gx">工学部</button>
-      <button class="chip" data-campus="xx">信息学部</button>
-    </div>
-    <div class="venue-list" id="venueList"><!-- JS 渲染 --></div>
-  </section>
-
-  <!-- ================= 我的球场足迹 ================= -->
-  <section id="footprint" class="section">
-    <h2 class="section-title">我的球场足迹</h2>
-    <p class="section-desc">点亮你踢过球、跑过步、看过比赛的场地——生成专属海报，分享给你的球搭子。（足迹保存在本机浏览器，不会上传）</p>
-    <div class="fp-grid" id="fpGrid"><!-- JS 渲染 --></div>
-    <div class="fp-summary">
-      <div class="fp-progress"><div class="fp-progress-bar" id="fpBar"></div></div>
-      <div class="fp-count" id="fpCount">已点亮 0 / 8 座场地</div>
-      <div class="fp-rank" id="fpRank"></div>
-    </div>
-    <div class="fp-actions">
-      <button class="btn btn-primary" id="fpPoster">🖼 生成我的分享海报</button>
-      <button class="btn btn-ghost" id="fpReset">清空足迹</button>
-    </div>
-  </section>
-
-  <!-- ================= 冷知识挑战 ================= -->
-  <section id="quiz" class="section">
-    <h2 class="section-title">⚡ 武大足球冷知识挑战</h2>
-    <p class="section-desc">10 道题，全部出自本站的绿茵时间线与赛事数据。答完生成段位与成绩单海报——敢不敢发给你的球搭子比一比？</p>
-    <div class="quiz-box" id="quizBox"><!-- JS 渲染 --></div>
-  </section>
-
-  <!-- ================= 球场人格测试 ================= -->
-  <section id="vtest" class="section">
-    <h2 class="section-title">🔮 你是哪座武大球场？</h2>
-    <p class="section-desc">4 道题、30 秒，凭直觉作答——测测你的性格最像四大振兴杯比赛球场中的哪一座，附专属人格解读与结果海报。</p>
-    <div class="quiz-box" id="vtestBox"><!-- JS 渲染 --></div>
-  </section>
-
-  <!-- ================= 地图 ================= -->
-  <section id="map-section" class="section">
-    <h2 class="section-title">球场地图</h2>
-    <p class="section-desc">四大绿茵分布在珞珈山四周，带 🏆 标记的为振兴杯比赛球场。点击标记查看详情；开启「校准模式」后可拖动标记微调位置（保存在本地浏览器）。</p>
-    <div class="map-toolbar">
-      <div class="layer-switch" id="layerSwitch">
-        <button data-layer="sat" class="active">卫星影像</button>
-        <button data-layer="road">电子地图</button>
-      </div>
-      <div class="map-tools">
-        <label class="calib-toggle"><input type="checkbox" id="calibMode"> 🔧 校准模式（拖动标记）</label>
-        <button class="btn-mini" id="resetCalib" title="清除本地校准">重置校准</button>
-        <label class="calib-toggle"><input type="checkbox" id="showSupp"> 显示附属学校/梅园场地</label>
-      </div>
-    </div>
-    <div id="map" aria-label="武汉大学足球场地图"></div>
-    <p class="map-note">坐标来源：武汉大学"四季电子地图"（Urban Computing &amp; Visualization Lab）公开矢量数据（WGS-84），页面内自动转换为 GCJ-02 以匹配高德底图；足球场白色虚线框按矢量数据的草坪多边形尺寸绘制。</p>
-  </section>
-
-  <!-- ================= 时间线 ================= -->
-  <section id="timeline" class="section section-alt">
-    <h2 class="section-title">绿茵时间线</h2>
-    <p class="section-desc">从开尔斯的"土方填谷"到振兴杯的点球大战。</p>
-    <ol class="timeline" id="timelineList"><!-- JS 渲染 --></ol>
-  </section>
-
-  <!-- ================= 其他场地 ================= -->
-  <section id="more" class="section">
-    <h2 class="section-title">其他运动场地</h2>
-    <p class="section-desc">除四大比赛球场外，校园内还有这些带草坪或跑道的场地（点击可在地图上定位）：</p>
-    <div class="supp-grid" id="suppGrid"><!-- JS 渲染 --></div>
-  </section>
-
-  <!-- ================= 关于 ================= -->
-  <section id="about" class="section section-alt">
-    <h2 class="section-title">数据与版权</h2>
-    <div class="about-grid">
-      <div>
-        <h3>数据来源</h3>
-        <ul class="credit-list" id="creditList"><!-- JS 渲染 --></ul>
-        <h3>坐标说明</h3>
-        <p class="about-p">场地坐标提取自武汉大学"四季电子地图"（Urban Computing &amp; Visualization Lab，Mapbox 矢量瓦片，WGS-84 坐标系）中的操场多边形、足球场草坪多边形与 POI 标注，并经周边建筑（行政楼、宋卿体育馆、星湖等）交叉验证；前端使用标准 WGS-84 → GCJ-02 转换以匹配高德底图。若发现标记偏移，可开启地图上的「校准模式」拖动修正（保存在你的浏览器本地）。</p>
-      </div>
-      <div>
-        <h3>出品与版权</h3>
-        <p class="about-p">本页面由<b>武汉大学足球协会</b>制作，用于"振兴杯"大学生足球联赛球场巡礼。所有照片均来自互联网公开渠道（武汉大学各部门官网、官方微信公众号及其媒体转载），版权归原作者与摄影者所有，各图注均已标注来源，仅供<b>校园非商业使用</b>；如需对外发布或商用，请替换为自有授权的照片或取得原作者授权。权利人如有异议，请联系足协删除。</p>
-        <h3>技术栈</h3>
-        <p class="about-p">纯静态页面：Leaflet + 高德栅格瓦片（卫星 style=6 / 路网 style=8）+ 原生 JavaScript；3D 页（<code>3d.html</code>）使用 three.js r147。全部 JS/CSS 库已本地化于 <code>js/vendor</code> 与 <code>css/vendor</code>，无需构建与联网加载库，双击 <code>index.html</code> 即可运行（仅地图瓦片需联网）。</p>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer class="site-footer">
-  <p>振兴杯球场巡礼 ｜ 出品：武汉大学足球协会 ｜ 2026 年 7 月</p>
-  <p class="footer-quote">"珞珈绿茵之上，青春永不落幕。"</p>
-  <p class="footer-note">照片与史料来自校方公开渠道（详见"数据与版权"），仅供校园非商业使用</p>
-</footer>
-
-<!-- 灯箱 -->
-<div class="lightbox" id="lightbox" aria-hidden="true">
-  <button class="lb-close" id="lbClose" aria-label="关闭">×</button>
-  <button class="lb-prev" id="lbPrev" aria-label="上一张">‹</button>
-  <figure>
-    <img id="lbImg" src="" alt="">
-    <figcaption><span id="lbCap"></span><br><small id="lbCr"></small></figcaption>
-  </figure>
-  <button class="lb-next" id="lbNext" aria-label="下一张">›</button>
-</div>
-
-<!-- 分享海报 -->
-<div class="poster-modal" id="posterModal" aria-hidden="true">
-  <button class="lb-close" id="pmClose" aria-label="关闭">×</button>
-  <div class="pm-box">
-    <img id="pmImg" alt="我的武大球场足迹分享海报">
-    <p class="pm-tip" id="pmTip">长按图片保存 / 转发给朋友</p>
-    <a class="btn btn-primary pm-dl" id="pmDl" download="我的武大球场足迹.png" href="#">⬇ 下载海报</a>
-  </div>
-</div>
-
-<script src="js/vendor/leaflet.js"></script>
-<script src="js/data.js"></script>
-<script src="js/app.js"></script>
-</body>
+    <script src="js/vendor/leaflet.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+  </body>
 </html>
