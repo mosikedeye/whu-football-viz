@@ -256,6 +256,18 @@
   lbEl.addEventListener('click', function (e) { if (e.target === lbEl) closeLb(); });
   document.getElementById('lbPrev').addEventListener('click', function () { lb.idx = (lb.idx - 1 + lb.set.length) % lb.set.length; showLb(); });
   document.getElementById('lbNext').addEventListener('click', function () { lb.idx = (lb.idx + 1) % lb.set.length; showLb(); });
+  /* 移动端：灯箱左右滑动切换 */
+  var touchX0 = null;
+  lbEl.addEventListener('touchstart', function (e) { touchX0 = e.changedTouches[0].clientX; }, { passive: true });
+  lbEl.addEventListener('touchend', function (e) {
+    if (touchX0 === null) return;
+    var dx = e.changedTouches[0].clientX - touchX0;
+    if (Math.abs(dx) > 50) {
+      if (dx > 0) document.getElementById('lbPrev').click();
+      else document.getElementById('lbNext').click();
+    }
+    touchX0 = null;
+  }, { passive: true });
   document.addEventListener('keydown', function (e) {
     if (!lbEl.classList.contains('open')) return;
     if (e.key === 'Escape') closeLb();

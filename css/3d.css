@@ -118,9 +118,27 @@ body {
 #viewbtns button.on { background: #94070a; border-color: #94070a; color: #fff; }
 
 @media (max-width: 700px) {
-  .topbar h1 { font-size: .95rem; order: -1; flex-basis: 100%; }
-  .panel { bottom: 10px; left: 10px; padding: 12px 14px; }
+  .topbar {
+    padding: 8px 12px; gap: 8px;
+    padding-top: max(8px, env(safe-area-inset-top));
+  }
+  .topbar h1 { font-size: .92rem; order: -1; flex-basis: 100%; }
+  .topbar .back { font-size: .8rem; padding: 4px 10px; }
+  .tools button { padding: 4px 10px; font-size: .78rem; }
+  .chips { padding: 8px 12px; }
+  .chips button { font-size: .8rem; padding: 5px 12px; }
+  .panel {
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    left: 10px; right: 10px; width: auto;
+    padding: 12px 14px; max-height: 38vh; overflow: auto;
+  }
+  .panel h2 { font-size: 1.1rem; }
   .panel .p-fact { display: none; }
   #hint { display: none; }
-  #viewbtns { top: auto; bottom: 14px; right: 10px; left: auto; flex-direction: column; }
+  #viewbtns { top: 10px; right: 10px; left: auto; bottom: auto; flex-direction: row; }
+  #viewbtns button { padding: 4px 10px; font-size: .74rem; }
+  .foot { font-size: .62rem; padding: 6px 12px; }
+}
+@media (max-width: 400px) {
+  .panel .p-alias, .panel .p-tags { display: none; }
 }

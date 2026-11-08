@@ -360,6 +360,29 @@ code { background: #eceae4; padding: 1px 6px; border-radius: 4px; font-size: .85
   .podium { grid-template-columns: repeat(3, minmax(88px, 1fr)); }
 }
 
+/* ---------- 移动端 / 公众号内置浏览器微调 ---------- */
+section[id] { scroll-margin-top: 64px; }
+@media (max-width: 700px) {
+  .hero { min-height: 440px; }
+  .hero-content { padding: 56px 18px 44px; }
+  .hero-badge { font-size: .76rem; padding: 4px 14px; letter-spacing: .08em; }
+  .hero-content h1 { letter-spacing: .2em; text-indent: .2em; }
+  .hero-sub { font-size: .95rem; }
+  .hero-desc { font-size: .8rem; }
+  #map { height: 400px; }
+  .section { padding: 40px 14px; }
+  .nav { padding: 8px 12px; gap: 9px; }
+  .nav a { font-size: .85rem; }
+  .nav-logo { font-size: .95rem; }
+  .big-quote { padding: 16px 18px; }
+  .big-quote p { font-size: 1rem; }
+  .lightbox img { max-height: 64vh; }
+  .lb-prev, .lb-next { width: 42px; height: 42px; font-size: 1.5rem; }
+  .lb-close { top: calc(10px + env(safe-area-inset-top)); }
+  .vc-body { padding: 20px 18px; }
+  .stats-bar { grid-template-columns: repeat(2, 1fr); }
+}
+
 /* ---------- 响应式 ---------- */
 @media (max-width: 900px) {
   .venue-card, .venue-card.flip { grid-template-columns: 1fr; }

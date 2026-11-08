@@ -15,6 +15,14 @@ if (!THREE || !THREE.OrbitControls) {
 }
 const OrbitControls = THREE.OrbitControls;
 
+/* 移动端（含微信内置浏览器）检测与画质分级 */
+const UA_STR = navigator.userAgent;
+const IS_TOUCH = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+const IS_MOBILE = IS_TOUCH && (/Android|iPhone|iPad|iPod|HarmonyOS|Mobile/i.test(UA_STR) || /Macintosh/i.test(UA_STR) || Math.min(window.innerWidth, window.innerHeight) < 760);
+const Q = IS_MOBILE
+  ? { dpr: 1.5, shadow: 1024, msaa: 0, crowd: 0.3, petals: 110, trees: 0.6, bloom: false, crowdShadow: false }
+  : { dpr: 2, shadow: 4096, msaa: 4, crowd: 0.6, petals: 280, trees: 1, bloom: true, crowdShadow: true };
+
 const D = window.WHU_FOOTBALL;
 const VENUES = D.venues;
 
@@ -73,7 +81,7 @@ try {
   document.getElementById('loading').innerHTML = '⚠️ 当前浏览器不支持 WebGL，无法显示 3D 球场';
   throw e;
 }
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, Q.dpr));
 renderer.setSize(stage.clientWidth, stage.clientHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -88,7 +96,7 @@ const camera = new THREE.PerspectiveCamera(42, stage.clientWidth / stage.clientH
 const VIEWS = {
   pano:  { pos: [132, 84, 172], tgt: [0, 0, 0] },
   top:   { pos: [0, 250, 14],   tgt: [0, 0, 0] },
-  pitch: { pos: [5, 2.6, 88],   tgt: [0, 8, -16] }
+  pitch: { pos: [-34, 1.85, 21], tgt: [18, 3.2, -12] }   /* 站在边线内侧草坪上，望向对面球门 */
 };
 camera.position.set(VIEWS.pano.pos[0], VIEWS.pano.pos[1], VIEWS.pano.pos[2]);
 
@@ -107,7 +115,7 @@ const hemi = new THREE.HemisphereLight(0xc6dcf7, 0x57534a, 1.0);
 const sun = new THREE.DirectionalLight(0xfff4de, 2.9);
 sun.position.set(150, 205, 95);
 sun.castShadow = true;
-sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.mapSize.set(Q.shadow, Q.shadow);
 sun.shadow.camera.left = -250; sun.shadow.camera.right = 250;
 sun.shadow.camera.top = 250; sun.shadow.camera.bottom = -250;
 sun.shadow.camera.near = 20; sun.shadow.camera.far = 1000;
@@ -241,10 +249,11 @@ const VignetteShader = {
 let composer = null, bloomPass = null, useComposer = false;
 (function initComposer() {
   try {
+    if (!Q.bloom) return;   /* 移动端跳过后期处理，直渲更流畅 */
     if (!(THREE.EffectComposer && THREE.RenderPass && THREE.UnrealBloomPass && THREE.ShaderPass && THREE.CopyShader && THREE.LuminosityHighPassShader)) return;
     const w = stage.clientWidth, h = stage.clientHeight;
     const pr = renderer.getPixelRatio();
-    const rt = new THREE.WebGLRenderTarget(Math.max(2, Math.floor(w * pr)), Math.max(2, Math.floor(h * pr)), { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
+    const rt = new THREE.WebGLRenderTarget(Math.max(2, Math.floor(w * pr)), Math.max(2, Math.floor(h * pr)), { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, samples: Q.msaa === 0 ? 0 : (pr >= 1.75 ? 2 : Q.msaa) });
     rt.texture.encoding = THREE.sRGBEncoding;
     composer = new THREE.EffectComposer(renderer, rt);
     composer.setPixelRatio(pr);
@@ -293,6 +302,57 @@ function makeNoiseTexture() {
   t.repeat.set(44, 29);
   return t;
 }
+const NOISE_TEX = makeNoiseTexture();
+
+/* 接触阴影贴片（软性 AO，让物体"落地"） */
+function makeBlobTexture() {
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = 128;
+  const c = cv.getContext('2d');
+  const g = c.createRadialGradient(64, 64, 6, 64, 64, 62);
+  g.addColorStop(0, 'rgba(0,0,0,0.6)');
+  g.addColorStop(0.5, 'rgba(0,0,0,0.28)');
+  g.addColorStop(1, 'rgba(0,0,0,0)');
+  c.fillStyle = g; c.fillRect(0, 0, 128, 128);
+  return new THREE.CanvasTexture(cv);
+}
+
+/* 足球表皮（五边形拼块） */
+function makeBallTexture() {
+  const cv = document.createElement('canvas');
+  cv.width = 256; cv.height = 128;
+  const c = cv.getContext('2d');
+  c.fillStyle = '#f7f7f5'; c.fillRect(0, 0, 256, 128);
+  c.fillStyle = '#22252a';
+  const rnd = mulberry32(555);
+  for (let i = 0; i < 9; i++) {
+    const x = rnd() * 256, y = 18 + rnd() * 92, r = 9 + rnd() * 7;
+    c.beginPath();
+    for (let k = 0; k < 5; k++) {
+      const a = -Math.PI / 2 + k * Math.PI * 2 / 5;
+      const px = x + Math.cos(a) * r, py = y + Math.sin(a) * r * 0.82;
+      if (k === 0) c.moveTo(px, py); else c.lineTo(px, py);
+    }
+    c.closePath(); c.fill();
+  }
+  const t = new THREE.CanvasTexture(cv);
+  t.encoding = THREE.sRGBEncoding;
+  return t;
+}
+
+/* 樱花花瓣贴图（912 限定） */
+function makePetalTexture() {
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = 32;
+  const c = cv.getContext('2d');
+  const g = c.createRadialGradient(16, 16, 1, 16, 16, 14);
+  g.addColorStop(0, 'rgba(255,228,236,1)');
+  g.addColorStop(0.6, 'rgba(244,178,203,0.9)');
+  g.addColorStop(1, 'rgba(244,178,203,0)');
+  c.fillStyle = g;
+  c.beginPath(); c.ellipse(16, 16, 13, 8, 0.6, 0, Math.PI * 2); c.fill();
+  return new THREE.CanvasTexture(cv);
+}
 
 function makeGroundTexture(v, cfg) {
   const cv = document.createElement('canvas');
@@ -302,13 +362,30 @@ function makeGroundTexture(v, cfg) {
   const hs = TRACK.hs * PXM;
   const rnd = mulberry32(hashStr(v.id));
 
-  /* 周边草地 + 噪点 */
+  /* 周边草地 + 噪点 + 修剪带 */
   ctx.fillStyle = '#417a3c';
   ctx.fillRect(0, 0, GW, GH);
   for (let i = 0; i < 1500; i++) {
     ctx.fillStyle = rnd() > 0.5 ? 'rgba(255,255,255,0.022)' : 'rgba(0,0,0,0.035)';
     ctx.fillRect(rnd() * GW, rnd() * GH, 16 + rnd() * 34, 10 + rnd() * 18);
   }
+  ctx.fillStyle = 'rgba(0,0,0,0.02)';
+  for (let bx = 0; bx < GW; bx += 16 * PXM) ctx.fillRect(bx, 0, 8 * PXM, GH);
+
+  /* 铺装步道与建筑前广场 */
+  const pave = (px, py, pw2, ph2) => {
+    const X = cx + px * PXM, Y = cy + py * PXM, Wp = pw2 * PXM, Hp = ph2 * PXM;
+    ctx.fillStyle = '#b0aaa0';
+    ctx.fillRect(X, Y, Wp, Hp);
+    ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(X, Y, Wp, Hp);
+  };
+  pave(-126, -46, 38, 92);    /* 西端广场（行政楼前） */
+  pave(92, -30, 30, 68);      /* 东端广场（老理学院前） */
+  pave(-72, 52, 144, 12);     /* 北侧观众集散道 */
+  pave(-72, -76, 144, 10);    /* 南侧步道 */
+  for (const lp of [[94, 62], [-94, 62], [94, -62], [-94, -62]]) pave(lp[0] - 4.5, lp[1] - 4.5, 9, 9);  /* 灯塔检修坪 */
 
   /* 跑道外铺装环 */
   stadiumPath(ctx, cx, cy, hs, (TRACK.rOuter + 7) * PXM);
@@ -339,20 +416,42 @@ function makeGroundTexture(v, cfg) {
   stadiumPath(ctx, cx, cy, hs, (TRACK.rInner + 0.25) * PXM);
   ctx.strokeStyle = '#3f6fa8'; ctx.lineWidth = 3.4; ctx.stroke();
 
-  /* 终点线 + 起跑错位线 */
+  /* 终点线（横贯各道粗白线） */
   ctx.strokeStyle = 'rgba(255,255,255,.95)';
   ctx.lineWidth = 5;
   ctx.beginPath();
   ctx.moveTo(cx + 26 * PXM, cy - TRACK.rOuter * PXM);
   ctx.lineTo(cx + 26 * PXM, cy - TRACK.rInner * PXM);
   ctx.stroke();
-  ctx.lineWidth = 2.4;
-  for (let k = 1; k <= 5; k++) {
-    const xx = cx + (26 - k * 4.5) * PXM;
+  /* 400 米逐道错位起跑线 + 道次数字 */
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for (let k = 0; k < TRACK.lanes; k++) {
+    const xi = cx + (24 - k * 4.6) * PXM;
+    const yIn = cy - (TRACK.rInner + k * TRACK.laneW + 0.18) * PXM;
+    const yOut = cy - (TRACK.rInner + (k + 1) * TRACK.laneW - 0.18) * PXM;
+    ctx.strokeStyle = 'rgba(255,255,255,.88)';
+    ctx.lineWidth = 2.6;
+    ctx.beginPath(); ctx.moveTo(xi, yIn); ctx.lineTo(xi - 1.5 * PXM, yOut); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.fillText(String(k + 1), xi + 1.6 * PXM, (yIn + yOut) / 2);
+  }
+  /* 800 米起跑弧线 */
+  ctx.strokeStyle = 'rgba(255,255,255,.8)';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx + (TRACK.hs + 1.2) * PXM, cy - (TRACK.rOuter - 0.3) * PXM);
+  ctx.quadraticCurveTo(cx + (TRACK.hs - 4.5) * PXM, cy - (TRACK.rInner + 5) * PXM, cx + (TRACK.hs - 7.5) * PXM, cy - TRACK.rInner * PXM);
+  ctx.stroke();
+  /* 接力区三角标 */
+  ctx.fillStyle = 'rgba(255,255,255,.78)';
+  for (let k = 0; k <= TRACK.lanes; k++) {
+    const yy = cy - (TRACK.rInner + k * TRACK.laneW) * PXM;
     ctx.beginPath();
-    ctx.moveTo(xx, cy - (TRACK.rInner + 0.4) * PXM);
-    ctx.lineTo(xx - 2.4 * PXM, cy - (TRACK.rInner + 3.2) * PXM);
-    ctx.stroke();
+    ctx.moveTo(cx + 12 * PXM, yy);
+    ctx.lineTo(cx + 11.2 * PXM, yy + 0.6 * PXM);
+    ctx.lineTo(cx + 12.8 * PXM, yy + 0.6 * PXM);
+    ctx.closePath(); ctx.fill();
   }
 
   /* 内场草坪 */
@@ -401,6 +500,18 @@ function makeGroundTexture(v, cfg) {
   for (const cor of [[x0, y0, 0], [x0 + pw, y0, Math.PI / 2], [x0 + pw, y0 + ph, Math.PI], [x0, y0 + ph, -Math.PI / 2]]) {
     ctx.beginPath(); ctx.arc(cor[0], cor[1], 1 * PXM, cor[2], cor[2] + Math.PI / 2); ctx.stroke();
   }
+
+  /* 球门区前的草皮磨损痕（真实球场细节） */
+  ctx.fillStyle = 'rgba(146,132,78,0.13)';
+  for (const s of [1, -1]) {
+    ctx.beginPath();
+    ctx.ellipse(cx + s * (L / 2 - 3.5) * PXM, cy, 4.5 * PXM, 11 * PXM, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = 'rgba(146,132,78,0.08)';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 6.5 * PXM, 0, Math.PI * 2);
+  ctx.fill();
 
   const tex = new THREE.CanvasTexture(cv);
   tex.encoding = THREE.sRGBEncoding;
@@ -500,9 +611,9 @@ function makeNetTexture() {
   cv.width = cv.height = 64;
   const c = cv.getContext('2d');
   c.clearRect(0, 0, 64, 64);
-  c.strokeStyle = 'rgba(255,255,255,0.9)';
-  c.lineWidth = 2;
-  for (let i = 0; i <= 64; i += 8) {
+  c.strokeStyle = 'rgba(255,255,255,0.88)';
+  c.lineWidth = 1.2;
+  for (let i = 0; i <= 64; i += 2) {
     c.beginPath(); c.moveTo(i, 0); c.lineTo(i, 64); c.stroke();
     c.beginPath(); c.moveTo(0, i); c.lineTo(64, i); c.stroke();
   }
@@ -584,7 +695,7 @@ const MAT = {
   cornerFlag: new THREE.MeshLambertMaterial({ color: 0xd32029, side: THREE.DoubleSide }),
   water: new THREE.MeshStandardMaterial({ color: 0x2c5f8a, roughness: 0.05, metalness: 0.3, transparent: true, opacity: 0.94 }),
   lakeRim: new THREE.MeshStandardMaterial({ color: 0x99927f, roughness: 0.95, side: THREE.DoubleSide }),
-  ball: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.32 }),
+  ball: new THREE.MeshStandardMaterial({ map: makeBallTexture(), roughness: 0.35 }),
   skin: new THREE.MeshStandardMaterial({ color: 0xd9a06e, roughness: 0.8 }),
   shorts: new THREE.MeshStandardMaterial({ color: 0x26282e, roughness: 0.85 }),
   teamA: new THREE.MeshStandardMaterial({ color: 0x9d1f35, roughness: 0.75 }),
@@ -597,7 +708,22 @@ MAT.roof = new THREE.MeshStandardMaterial({ map: makeRoofTexture(), roughness: 0
 MAT.eave = new THREE.MeshStandardMaterial({ color: 0x24453c, roughness: 0.85 });
 MAT.stone = new THREE.MeshStandardMaterial({ color: 0x9a988f, roughness: 0.95 });
 MAT.ridge = new THREE.MeshStandardMaterial({ color: 0x213f37, roughness: 0.8 });
-MAT.hill = new THREE.MeshStandardMaterial({ color: 0x4a7a40, roughness: 1 });
+MAT.hill = new THREE.MeshStandardMaterial({ color: 0x4a7a40, roughness: 1, bumpMap: NOISE_TEX, bumpScale: 0.15 });
+MAT.curb = new THREE.MeshStandardMaterial({ color: 0xe9e7e0, roughness: 0.55 });
+const BLOB_TEX = makeBlobTexture();
+MAT.blobA = new THREE.MeshBasicMaterial({ map: BLOB_TEX, transparent: true, opacity: 0.3, depthWrite: false });
+MAT.blobB = new THREE.MeshBasicMaterial({ map: BLOB_TEX, transparent: true, opacity: 0.2, depthWrite: false });
+MAT.blobC = new THREE.MeshBasicMaterial({ map: BLOB_TEX, transparent: true, opacity: 0.12, depthWrite: false });
+const BLOB_GEO = new THREE.PlaneGeometry(1, 1);
+const GLOBAL_GEOS = [BLOB_GEO];
+function addBlob(parent, x, z, sx, sz, mat, y) {
+  const m = new THREE.Mesh(BLOB_GEO, mat);
+  m.rotation.x = -Math.PI / 2;
+  m.scale.set(sx, sz, 1);
+  m.position.set(x, y || 0.03, z);
+  parent.add(m);
+  return m;
+}
 
 /* ============================================================
  * 三维构件
@@ -649,31 +775,75 @@ function buildHill(key) {
   return g;
 }
 
+/* 跑道内沿立体道牙（IAAF 标准凸起缘石，白色） */
+function buildCurbRing() {
+  const hs = TRACK.hs, ro = TRACK.rInner + 0.08, ri = TRACK.rInner - 0.28;
+  const shape = new THREE.Shape();
+  shape.moveTo(-hs, -ro);
+  shape.lineTo(hs, -ro);
+  shape.absarc(hs, 0, ro, -Math.PI / 2, Math.PI / 2, false);
+  shape.lineTo(-hs, ro);
+  shape.absarc(-hs, 0, ro, Math.PI / 2, Math.PI * 1.5, false);
+  const hole = new THREE.Path();
+  hole.moveTo(-hs, -ri);
+  hole.lineTo(hs, -ri);
+  hole.absarc(hs, 0, ri, -Math.PI / 2, Math.PI / 2, false);
+  hole.lineTo(-hs, ri);
+  hole.absarc(-hs, 0, ri, Math.PI / 2, Math.PI * 1.5, false);
+  shape.holes.push(hole);
+  const geo = new THREE.ExtrudeGeometry(shape, { depth: 0.14, bevelEnabled: false, curveSegments: 48 });
+  geo.rotateX(-Math.PI / 2);
+  const m = new THREE.Mesh(geo, MAT.curb);
+  m.castShadow = true; m.receiveShadow = true;
+  return m;
+}
+
+/* 四点网片（自定义四边形，避免平面旋转对齐的歧义） */
+function netQuad(a, b, c, d) {
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array([
+    a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z,
+    a.x, a.y, a.z, c.x, c.y, c.z, d.x, d.y, d.z
+  ]);
+  const uv = new Float32Array([0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1]);
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  geo.computeVertexNormals();
+  return new THREE.Mesh(geo, MAT.net);
+}
+/* 圆管支撑杆（两点之间） */
+function strut(g, p1, p2, r, mat) {
+  const dir = new THREE.Vector3(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z);
+  const len = dir.length();
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 8), mat);
+  m.position.set((p1.x + p2.x) / 2, (p1.y + p2.y) / 2, (p1.z + p2.z) / 2);
+  m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
+  m.castShadow = true;
+  g.add(m);
+  return m;
+}
+/* 真实足球门：门柱横梁 + 后斜网箱 + 顶网 + 侧网 + 斜撑与后底杠 */
 function buildGoal(side, L) {
   const g = new THREE.Group();
-  const postGeo = new THREE.CylinderGeometry(0.07, 0.07, 2.44, 10);
-  const p1 = new THREE.Mesh(postGeo, MAT.white); p1.position.set(0, 1.22, -3.66); p1.castShadow = true;
-  const p2 = new THREE.Mesh(postGeo, MAT.white); p2.position.set(0, 1.22, 3.66); p2.castShadow = true;
-  const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 7.32, 10), MAT.white);
-  bar.rotation.x = Math.PI / 2; bar.position.y = 2.44; bar.castShadow = true;
-  for (const zz of [-3.66, 3.66]) {
-    const stay = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.2, 8), MAT.white);
-    stay.position.set(side * 0.8, 1.05, zz);
-    stay.rotation.z = side * 0.66;
-    g.add(stay);
+  const s = side, H = 2.44, hw = 3.66;   /* 半宽 */
+  const topBack = 1.25, gndBack = 2.05;  /* 顶网进深 / 后底杠进深 */
+  const V = (x, y, z) => ({ x: s * x, y: y, z: z });
+  /* 门柱 + 横梁 */
+  const postGeo = new THREE.CylinderGeometry(0.06, 0.06, H, 12);
+  const p1 = new THREE.Mesh(postGeo, MAT.white); p1.position.set(0, H / 2, -hw); p1.castShadow = true;
+  const p2 = new THREE.Mesh(postGeo, MAT.white); p2.position.set(0, H / 2, hw); p2.castShadow = true;
+  g.add(p1, p2);
+  strut(g, V(0, H, -hw), V(0, H, hw), 0.06, MAT.white);                       /* 横梁 */
+  strut(g, V(gndBack, 0.05, -hw), V(gndBack, 0.05, hw), 0.04, MAT.white);     /* 后底杠 */
+  for (const zz of [-hw, hw]) {
+    strut(g, V(0, H, zz), V(gndBack, 0.05, zz), 0.04, MAT.white);             /* 斜撑 */
+    strut(g, V(0, H, zz), V(topBack, H, zz), 0.035, MAT.white);               /* 顶网侧梁 */
   }
-  const netBack = new THREE.Mesh(new THREE.PlaneGeometry(7.32, 2.44), MAT.net);
-  netBack.rotation.y = Math.PI / 2;
-  netBack.position.set(side * 1.95, 1.22, 0);
-  const netTop = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 7.32), MAT.net);
-  netTop.rotation.x = -Math.PI / 2;
-  netTop.position.set(side * 0.98, 2.32, 0);
-  g.add(netBack, netTop);
-  for (const zz of [-1, 1]) {
-    const netSide = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 2.44), MAT.net);
-    netSide.rotation.y = zz * 0.45;
-    netSide.position.set(side * 0.98, 1.22, zz * 3.6);
-    g.add(netSide);
+  /* 网：顶网（水平）+ 背网（后斜）+ 两侧网 */
+  g.add(netQuad(V(0, H - 0.02, -hw), V(0, H - 0.02, hw), V(topBack, H - 0.02, hw), V(topBack, H - 0.02, -hw)));
+  g.add(netQuad(V(topBack, H - 0.02, -hw), V(topBack, H - 0.02, hw), V(gndBack, 0.06, hw), V(gndBack, 0.06, -hw)));
+  for (const zz of [-hw, hw]) {
+    g.add(netQuad(V(0, 0.02, zz), V(0, H - 0.02, zz), V(topBack, H - 0.02, zz), V(gndBack, 0.02, zz)));
   }
   g.position.x = side * L / 2;
   return g;
@@ -752,6 +922,7 @@ function buildStand(len, rows, theme, roof) {
   const backMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(0.5, 0.46, 0.09), MAT.seatBase, count);
   panMesh.castShadow = true; backMesh.castShadow = true;
   const m4 = new THREE.Matrix4(), col = new THREE.Color();
+  const seatPos = [];
   let idx = 0;
   for (let r = 0; r < rows; r++) {
     for (let i = 0; i < perRow; i++) {
@@ -765,6 +936,7 @@ function buildStand(len, rows, theme, roof) {
       col.copy((Math.floor(x * 0.8) + r) % 6 === 0 ? seatLight : seatColor);
       panMesh.setColorAt(idx, col);
       backMesh.setColorAt(idx, col);
+      seatPos.push({ x: x, y: y, z: z });
       idx++;
     }
   }
@@ -773,6 +945,33 @@ function buildStand(len, rows, theme, roof) {
   if (panMesh.instanceColor) panMesh.instanceColor.needsUpdate = true;
   if (backMesh.instanceColor) backMesh.instanceColor.needsUpdate = true;
   g.add(panMesh, backMesh);
+  /* 观众：实例化小人（约六成上座，服装配色随机） */
+  const crowdRnd = mulberry32(Math.floor(len * 97 + rows * 13));
+  const occ = seatPos.filter(() => crowdRnd() < Q.crowd);
+  if (occ.length) {
+    const palette = [0x9d1f35, 0xf2f2f2, 0x2b3a55, 0x8a8f98, 0x22252a, 0x6f9fd8, 0xc94f6d, 0xe8c25a, 0x3f7a4a];
+    const bodyMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(0.32, 0.5, 0.24), MAT.seatBase, occ.length);
+    const headMesh = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(0.125, 1), MAT.seatBase, occ.length);
+    bodyMesh.castShadow = Q.crowdShadow;
+    const mm = new THREE.Matrix4(), cc = new THREE.Color();
+    for (let ci = 0; ci < occ.length; ci++) {
+      const sp2 = occ[ci];
+      mm.makeTranslation(sp2.x, sp2.y + 0.3, sp2.z - 0.02);
+      bodyMesh.setMatrixAt(ci, mm);
+      mm.makeTranslation(sp2.x, sp2.y + 0.64, sp2.z - 0.02);
+      headMesh.setMatrixAt(ci, mm);
+      cc.setHex(palette[Math.floor(crowdRnd() * palette.length)]);
+      bodyMesh.setColorAt(ci, cc);
+      cc.setHex(crowdRnd() > 0.5 ? 0xd9a06e : 0xc08a5c);
+      headMesh.setColorAt(ci, cc);
+    }
+    bodyMesh.instanceMatrix.needsUpdate = true;
+    headMesh.instanceMatrix.needsUpdate = true;
+    if (bodyMesh.instanceColor) bodyMesh.instanceColor.needsUpdate = true;
+    if (headMesh.instanceColor) headMesh.instanceColor.needsUpdate = true;
+    g.add(bodyMesh, headMesh);
+  }
+  addBlob(g, 0, rows * 0.5, len + 10, rows * 1.05 + 10, MAT.blobC, 0.02);
   /* 前排栏杆 */
   const rail = new THREE.Mesh(new THREE.BoxGeometry(len, 0.08, 0.08), MAT.steel);
   rail.position.set(0, 1.05, -0.45);
@@ -809,7 +1008,15 @@ const glowSprites = [];
 const coneRefs = [];
 const flagStates = [];
 const lakeRipples = [];
-let players = [], ballState = null;
+let players = [], ballState = null, petalSys = null;
+let ballCarrier = -1, ballSwitchAt = 0;
+function pickCarrier(t) {
+  const cands = [];
+  for (let i = 0; i < players.length; i++) if (!players[i].gk) cands.push(i);
+  if (!cands.length) { ballCarrier = -1; ballSwitchAt = t + 5; return; }
+  ballCarrier = cands[Math.floor(Math.random() * cands.length)];
+  ballSwitchAt = t + 4 + Math.random() * 5;   /* 4~9 秒换一次球权 */
+}
 
 function buildFloodlight(x, z) {
   const g = new THREE.Group();
@@ -829,6 +1036,7 @@ function buildFloodlight(x, z) {
   const base = new THREE.Mesh(new THREE.BoxGeometry(2.7, 0.7, 2.7), MAT.concreteDark);
   base.position.y = 0.35; base.castShadow = true;
   g.add(base);
+  addBlob(g, 0, 0, 5.5, 5.5, MAT.blobB, 0.02);
   const frame = new THREE.Mesh(new THREE.BoxGeometry(5.4, 0.24, 2.7), MAT.steel);
   frame.position.y = 22.2;
   frame.rotation.y = yaw;
@@ -899,6 +1107,7 @@ function buildTree(x, z, s, rnd, cherry) {
   const c3 = new THREE.Mesh(canopyGeo(rnd, 1.4 * s), mat);
   c3.position.set(-0.9 * s, 5.5 * s, 0.6 * s); c3.castShadow = true;
   g.add(trunk, c1, c2, c3);
+  addBlob(g, 0, 0, 5.4 * s, 5.4 * s, MAT.blobA, 0.04);
   g.position.set(x, 0, z);
   g.rotation.y = rnd() * Math.PI * 2;
   return g;
@@ -1161,6 +1370,45 @@ function buildLake() {
   return g;
 }
 
+/* 樱花花瓣飘落（912 限定） */
+function buildPetals() {
+  const N = Q.petals;
+  const pos = new Float32Array(N * 3);
+  const spd = new Float32Array(N);
+  const phs = new Float32Array(N);
+  const rnd = mulberry32(20260728);
+  for (let i = 0; i < N; i++) {
+    pos[i * 3] = -85 + rnd() * 170;
+    pos[i * 3 + 1] = rnd() * 44;
+    pos[i * 3 + 2] = -80 + rnd() * 115;
+    spd[i] = 0.7 + rnd() * 1.2;
+    phs[i] = rnd() * 6.283;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const mat = new THREE.PointsMaterial({ size: 0.62, map: makePetalTexture(), transparent: true, opacity: 0.9, depthWrite: false, sizeAttenuation: true });
+  const pts = new THREE.Points(geo, mat);
+  pts.renderOrder = 2;
+  petalSys = { pts: pts, spd: spd, phs: phs, n: N };
+  return pts;
+}
+function updatePetals(dt, t) {
+  if (!petalSys) return;
+  const attr = petalSys.pts.geometry.attributes.position;
+  const arr = attr.array;
+  for (let i = 0; i < petalSys.n; i++) {
+    arr[i * 3 + 1] -= petalSys.spd[i] * dt;
+    arr[i * 3] += Math.sin(t * 1.5 + petalSys.phs[i]) * dt * 0.9;
+    arr[i * 3 + 2] += Math.cos(t * 1.1 + petalSys.phs[i]) * dt * 0.5;
+    if (arr[i * 3 + 1] < 0.2) {
+      arr[i * 3 + 1] = 38 + Math.random() * 8;
+      arr[i * 3] = -85 + Math.random() * 170;
+      arr[i * 3 + 2] = -80 + Math.random() * 115;
+    }
+  }
+  attr.needsUpdate = true;
+}
+
 /* ============================================================
  * 场地组装
  * ============================================================ */
@@ -1179,7 +1427,7 @@ const GRASS_DAY = new THREE.Color(0x3a6b33), GRASS_NIGHT = new THREE.Color(0x1b3
 function disposeGroup(g) {
   g.traverse(o => {
     if (o.shadow && o.shadow.dispose) o.shadow.dispose();
-    if (o.geometry) o.geometry.dispose();
+    if (o.geometry && GLOBAL_GEOS.indexOf(o.geometry) === -1) o.geometry.dispose();
     if (o.material && !Object.values(MAT).includes(o.material)) {
       const ms = Array.isArray(o.material) ? o.material : [o.material];
       ms.forEach(m => {
@@ -1203,6 +1451,8 @@ function buildVenue(v) {
   lakeRipples.length = 0;
   players = [];
   ballState = null;
+  petalSys = null;
+  ballCarrier = -1;
 
   const cfg = CFG[v.id] || { theme: '#94070a', trees: 12, stand: 'main' };
   const lw = pitchLW(v.pitch);
@@ -1213,7 +1463,7 @@ function buildVenue(v) {
   const tex = makeGroundTexture(v, cfg);
   const ground = new THREE.Mesh(
     new THREE.PlaneGeometry(320, 210),
-    new THREE.MeshStandardMaterial({ map: tex, bumpMap: makeNoiseTexture(), bumpScale: 0.26, roughness: 0.95 })
+    new THREE.MeshStandardMaterial({ map: tex, bumpMap: NOISE_TEX, bumpScale: 0.26, roughness: 0.95 })
   );
   ground.rotation.x = -Math.PI / 2;
   ground.receiveShadow = true;
@@ -1228,6 +1478,7 @@ function buildVenue(v) {
   /* 球门 / 角旗 / 广告牌 */
   world.add(buildGoal(1, L), buildGoal(-1, L));
   safe('cornerFlags', () => world.add(buildCornerFlags(L, W)));
+  safe('curb', () => world.add(buildCurbRing()));
   safe('adBoards', () => world.add(buildAdBoards(L, W)));
 
   /* 看台 */
@@ -1273,6 +1524,12 @@ function buildVenue(v) {
   });
   safe('landmark', () => { if (cfg.landmark) world.add(buildLandmark(cfg.landmark)); });
   safe('landmark2', () => { if (cfg.landmark2) world.add(buildLandmark(cfg.landmark2)); });
+  for (const lm of [cfg.landmark, cfg.landmark2]) {
+    if (lm && LANDMARK_BOX[lm]) {
+      const bx = LANDMARK_BOX[lm];
+      addBlob(world, bx[0], bx[1], bx[2] * 2.5, bx[3] * 2.5, MAT.blobC, 0.025);
+    }
+  }
 
   /* 篮球场 / 星湖（信部） */
   safe('bball', () => { if (cfg.bball) world.add(buildBasketball(76, 64)); });
@@ -1285,7 +1542,8 @@ function buildVenue(v) {
   if (cfg.lake) ex.push([-70, -66, 24, 17]);
   if (cfg.bball) ex.push([76, 64, 20, 13]);
   let placed = 0, guard = 0;
-  while (placed < cfg.trees && guard < 400) {
+  const treeTarget = Math.max(4, Math.round(cfg.trees * Q.trees));
+  while (placed < treeTarget && guard < 400) {
     guard++;
     const a = rnd() * Math.PI * 2;
     const rx = 100 + rnd() * 22, rz = 62 + rnd() * 13;
@@ -1305,37 +1563,84 @@ function buildVenue(v) {
       const x = -66 + i * (132 / (cfg.cherry - 1));
       world.add(buildTree(x + (rnd() - 0.5) * 4, -56 - rnd() * 5, 0.85 + rnd() * 0.4, rnd, true));
     }
+    world.add(buildPetals());
   }
 
-  /* 球员 7v7（带摆腿动画） */
+  /* 球员 7v7：发型/三色球衣套装/两段式腿部/摆臂，门将专属配色 */
   safe('players', () => {
-    const legGeo = new THREE.BoxGeometry(0.15, 0.72, 0.17);
-    const mk = (teamMat) => {
+    const skinMats = [0xd9a06e, 0xc98d5e, 0xe8b88a].map(c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.85 }));
+    const hairMat = new THREE.MeshStandardMaterial({ color: 0x221a12, roughness: 0.95 });
+    const bootMat = new THREE.MeshStandardMaterial({ color: 0x14161a, roughness: 0.6 });
+    const kits = {
+      A:  { shirt: 0x9d1f35, shorts: 0xf2f2f2, socks: 0xf0f0f0 },
+      B:  { shirt: 0xeef1f5, shorts: 0x26282e, socks: 0xe4e4e4 },
+      GA: { shirt: 0x1f8a4c, shorts: 0x1c1e24, socks: 0x1f8a4c },
+      GB: { shirt: 0xf2b705, shorts: 0x1c1e24, socks: 0xf2b705 }
+    };
+    const kitMat = {};
+    Object.keys(kits).forEach(k => {
+      kitMat[k] = {
+        shirt: new THREE.MeshStandardMaterial({ color: kits[k].shirt, roughness: 0.75 }),
+        shorts: new THREE.MeshStandardMaterial({ color: kits[k].shorts, roughness: 0.8 }),
+        socks: new THREE.MeshStandardMaterial({ color: kits[k].socks, roughness: 0.85 })
+      };
+    });
+    const mk = (kitKey, skinIdx) => {
+      const km = kitMat[kitKey];
       const g = new THREE.Group();
-      const pivL = new THREE.Group(); pivL.position.set(-0.1, 0.78, 0);
-      const legL = new THREE.Mesh(legGeo, MAT.shorts); legL.position.y = -0.36; legL.castShadow = true;
-      pivL.add(legL);
-      const pivR = new THREE.Group(); pivR.position.set(0.1, 0.78, 0);
-      const legR = new THREE.Mesh(legGeo, MAT.shorts); legR.position.y = -0.36; legR.castShadow = true;
-      pivR.add(legR);
-      const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.2, 0.42, 3, 8), teamMat);
-      torso.position.y = 1.14; torso.castShadow = true;
-      const head = new THREE.Mesh(new THREE.SphereGeometry(0.155, 12, 10), MAT.skin);
-      head.position.y = 1.56; head.castShadow = true;
-      g.add(pivL, pivR, torso, head);
-      g.userData = { pivL: pivL, pivR: pivR, torso: torso };
+      /* 腿：大腿(短裤色) + 小腿(球袜色) + 球鞋，髋/膝两级枢轴 */
+      const mkLeg = (hx) => {
+        const hip = new THREE.Group(); hip.position.set(hx, 0.86, 0);
+        const thigh = new THREE.Mesh(new THREE.BoxGeometry(0.145, 0.42, 0.16), km.shorts);
+        thigh.position.y = -0.21; thigh.castShadow = true;
+        const knee = new THREE.Group(); knee.position.y = -0.42;
+        const shin = new THREE.Mesh(new THREE.BoxGeometry(0.115, 0.34, 0.13), km.socks);
+        shin.position.y = -0.17; shin.castShadow = true;
+        const foot = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.08, 0.26), bootMat);
+        foot.position.set(0, -0.38, 0.05);
+        knee.add(shin, foot);
+        hip.add(thigh, knee);
+        g.add(hip);
+        return { hip: hip, knee: knee };
+      };
+      const legL = mkLeg(-0.085), legR = mkLeg(0.085);
+      /* 手臂：上臂(球衣色) + 前臂(肤色)，肩/肘两级枢轴 */
+      const mkArm = (sx) => {
+        const sh = new THREE.Group(); sh.position.set(sx * 0.24, 1.34, 0);
+        const upper = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.3, 0.1), km.shirt);
+        upper.position.y = -0.15; upper.castShadow = true;
+        const el = new THREE.Group(); el.position.y = -0.3;
+        const fore = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.28, 0.09), skinMats[skinIdx]);
+        fore.position.y = -0.14;
+        el.add(fore);
+        sh.add(upper, el);
+        g.add(sh);
+        return { sh: sh, el: el };
+      };
+      const armL = mkArm(-1), armR = mkArm(1);
+      const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.17, 0.34, 3, 10), km.shirt);
+      torso.position.y = 1.12; torso.castShadow = true;
+      const shorts = new THREE.Mesh(new THREE.BoxGeometry(0.33, 0.18, 0.2), km.shorts);
+      shorts.position.y = 0.88;
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.135, 14, 12), skinMats[skinIdx]);
+      head.position.y = 1.52; head.castShadow = true;
+      const hair = new THREE.Mesh(new THREE.SphereGeometry(0.142, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.55), hairMat);
+      hair.position.y = 1.535;
+      g.add(torso, shorts, head, hair);
+      g.userData = { legL: legL, legR: legR, armL: armL, armR: armR, torso: torso };
       return g;
     };
     const formations = [
       [-0.46, 0], [-0.36, -0.3], [-0.36, 0.3], [-0.2, -0.14], [-0.2, 0.14], [-0.06, -0.32], [-0.06, 0.32]
     ];
     formations.forEach((f, i) => {
+      const gk = (i === 0);
       const xa = f[0] * L - 2, za = f[1] * W;
-      const pa = mk(MAT.teamA); pa.position.set(xa, 0, za); world.add(pa);
-      players.push({ mesh: pa, x: xa, z: za, zx: xa, zy: za, rx: L * 0.14, rz: W * 0.38, tx: xa, tz: za, sp: 1, ph: i * 1.7 });
+      const pa = mk(gk ? 'GA' : 'A', i % 3); pa.position.set(xa, 0, za); world.add(pa);
+      players.push({ mesh: pa, x: xa, z: za, zx: xa, zy: za, rx: gk ? 1.6 : L * 0.14, rz: gk ? W * 0.2 : W * 0.38, tx: xa, tz: gk ? za + 2 : za, vx: 0, vz: 0, sp: 1.4, ph: i * 1.7, gk: gk, face: Math.PI / 2, fixedYaw: Math.PI / 2, pauseUntil: 0 });
       const xb = -f[0] * L + 2, zb = -f[1] * W;
-      const pb = mk(MAT.teamB); pb.position.set(xb, 0, zb); world.add(pb);
-      players.push({ mesh: pb, x: xb, z: zb, zx: xb, zy: zb, rx: L * 0.14, rz: W * 0.38, tx: xb, tz: zb, sp: 1, ph: i * 2.3 + 1 });
+      const pb = mk(gk ? 'GB' : 'B', (i + 1) % 3); pb.position.set(xb, 0, zb); world.add(pb);
+      players.push({ mesh: pb, x: xb, z: zb, zx: xb, zy: zb, rx: gk ? 1.6 : L * 0.14, rz: gk ? W * 0.2 : W * 0.38, tx: xb, tz: gk ? zb + 2 : zb, vx: 0, vz: 0, sp: 1.4, ph: i * 2.3 + 1, gk: gk, face: -Math.PI / 2, fixedYaw: -Math.PI / 2, pauseUntil: 0 });
     });
   });
 }
@@ -1344,35 +1649,89 @@ function buildVenue(v) {
  * 动画
  * ============================================================ */
 function updatePlayers(dt, t) {
-  for (const p of players) {
-    const dx = p.tx - p.x, dz = p.tz - p.z;
-    const d = Math.hypot(dx, dz);
-    let moving = true;
-    if (d < 0.7) {
-      p.tx = p.zx + (Math.random() - 0.5) * 2 * p.rx;
-      p.tz = p.zy + (Math.random() - 0.5) * 2 * p.rz;
-      p.sp = 0.8 + Math.random() * 1.7;
-      moving = false;
-    } else {
-      p.x += dx / d * p.sp * dt;
-      p.z += dz / d * p.sp * dt;
-      p.mesh.rotation.y = Math.atan2(dx, dz);
+  if (ballCarrier < 0 || t > ballSwitchAt) pickCarrier(t);
+  for (let i = 0; i < players.length; i++) {
+    const p = players[i];
+    let desX = 0, desZ = 0;
+    /* 目标决策：到点后选新目标（走/慢跑/冲刺三档），偶尔原地停顿 */
+    if (t >= p.pauseUntil) {
+      const dx = p.tx - p.x, dz = p.tz - p.z;
+      const d = Math.hypot(dx, dz);
+      if (d < 0.8) {
+        if (p.gk) { p.tx = p.zx; p.tz = p.zy + (Math.random() - 0.5) * 2 * p.rz; }
+        else { p.tx = p.zx + (Math.random() - 0.5) * 2 * p.rx; p.tz = p.zy + (Math.random() - 0.5) * 2 * p.rz; }
+        const roll = Math.random();
+        p.sp = roll < 0.45 ? 1.0 + Math.random() * 0.7
+             : roll < 0.85 ? 2.4 + Math.random() * 1.2
+             : 4.8 + Math.random() * 2.2;
+        if (!p.gk && Math.random() < 0.3) p.pauseUntil = t + 0.8 + Math.random() * 2.2;
+      } else {
+        desX = dx / d * p.sp;
+        desZ = dz / d * p.sp;
+      }
     }
+    /* 速度惯性：加速/减速渐进，不再瞬移 */
+    const kk = Math.min(1, dt * 3.2);
+    p.vx += (desX - p.vx) * kk;
+    p.vz += (desZ - p.vz) * kk;
+    p.x += p.vx * dt;
+    p.z += p.vz * dt;
+    const sp = Math.hypot(p.vx, p.vz);
+    const moving = sp > 0.25;
+    /* 朝向平滑插值（转身有过程）；门将始终面向场内 */
+    if (p.gk) {
+      p.face = p.fixedYaw;
+    } else if (moving) {
+      const target = Math.atan2(p.vx, p.vz);
+      let diff = target - p.face;
+      while (diff > Math.PI) diff -= Math.PI * 2;
+      while (diff < -Math.PI) diff += Math.PI * 2;
+      p.face += diff * Math.min(1, dt * 7);
+    } else if (t < p.pauseUntil) {
+      p.face += Math.sin(t * 0.6 + p.ph) * dt * 0.35;   /* 停顿观望 */
+    }
+    p.mesh.rotation.y = p.face;
+    /* 步态参数随速度缩放：走=小步低频、跑=大幅高频、冲刺=高抬膝 */
+    const run = sp > 1.8, sprint = sp > 3.6;
+    const freq = sprint ? 12.5 : run ? 9.5 : 5.4;
+    const amp = moving ? Math.min(0.8, 0.1 + sp * 0.13) : 0;
+    const cad = t * freq + p.ph;
+    const s1 = Math.sin(cad), s2 = -s1;
     const u = p.mesh.userData;
-    const sw = moving ? Math.sin(t * 10 + p.ph) * 0.62 : Math.sin(t * 1.8 + p.ph) * 0.04;
-    u.pivL.rotation.x = sw;
-    u.pivR.rotation.x = -sw;
-    u.torso.rotation.x = moving ? 0.16 : 0.02;
-    p.mesh.position.set(p.x, moving ? Math.abs(Math.sin(t * 10 + p.ph)) * 0.055 : 0, p.z);
+    u.legL.hip.rotation.x = s1 * amp;
+    u.legR.hip.rotation.x = s2 * amp;
+    const kneeK = moving ? (run ? 1.7 : 0.6) : 0.06;
+    u.legL.knee.rotation.x = -(Math.max(0, Math.cos(cad)) * amp * kneeK + 0.05);
+    u.legR.knee.rotation.x = -(Math.max(0, -Math.cos(cad)) * amp * kneeK + 0.05);
+    /* 手臂：摆幅随速度，肘部保持弯曲（冲刺时更屈） */
+    const armAmp = moving ? Math.min(0.85, 0.12 + sp * 0.16) : 0.03;
+    u.armL.sh.rotation.x = moving ? s2 * armAmp : Math.sin(t * 1.3 + p.ph) * 0.03;
+    u.armR.sh.rotation.x = moving ? s1 * armAmp : Math.sin(t * 1.3 + p.ph + 2) * 0.03;
+    u.armL.el.rotation.x = -(0.3 + armAmp * 1.1 + (run ? Math.max(0, s2) * 0.25 : 0));
+    u.armR.el.rotation.x = -(0.3 + armAmp * 1.1 + (run ? Math.max(0, s1) * 0.25 : 0));
+    /* 躯干：前倾随速度 + 跑动时肩髋反向微旋；站立时呼吸起伏 */
+    u.torso.rotation.x = Math.min(0.2, sp * 0.033) + (moving ? 0 : Math.sin(t * 1.4 + p.ph) * 0.012);
+    u.torso.rotation.y = moving ? -s1 * (run ? 0.1 : 0.04) : 0;
+    p.mesh.position.set(p.x, moving ? Math.abs(Math.sin(cad)) * Math.min(0.07, sp * 0.014) : 0, p.z);
   }
+  /* 足球：跟随当前持球队员脚下盘带，换人瞬间形成"传球" */
   if (ballState) {
     const b = ballState;
-    const dx = b.tx - b.x, dz = b.tz - b.z;
+    let bx = 0, bz = 0;
+    if (ballCarrier >= 0 && ballCarrier < players.length) {
+      const c = players[ballCarrier];
+      bx = c.x + Math.sin(c.face) * 1.05 + Math.sin(t * 7 + c.ph) * 0.18;
+      bz = c.z + Math.cos(c.face) * 1.05 + Math.cos(t * 6.3 + c.ph) * 0.18;
+    }
+    const dx = bx - b.x, dz = bz - b.z;
     const d = Math.hypot(dx, dz);
-    if (d < 0.5) { b.tx = (Math.random() - 0.5) * 34; b.tz = (Math.random() - 0.5) * 26; }
-    else { b.x += dx / d * 3.4 * dt; b.z += dz / d * 3.4 * dt; }
-    b.mesh.position.set(b.x, 0.35 + Math.abs(Math.sin(t * 5)) * 0.07, b.z);
-    b.mesh.rotation.x += dt * 2.4; b.mesh.rotation.z -= dt * 1.6;
+    const follow = Math.min(1, dt * (d > 3 ? 4.5 : 9));
+    const mx = dx * follow, mz = dz * follow;
+    b.x += mx; b.z += mz;
+    const moved = Math.hypot(mx, mz) / Math.max(dt, 1e-4);
+    b.mesh.position.set(b.x, 0.35 + (d > 1.5 ? Math.abs(Math.sin(t * 6)) * 0.1 : 0), b.z);
+    b.mesh.rotation.x += dt * moved / 0.35;      /* 按滚动距离自旋 */
+    b.mesh.rotation.z -= dt * 0.5;
   }
 }
 function updateFlags(t) {
@@ -1513,6 +1872,7 @@ function animate() {
   updateFlags(t);
   updateClouds(t);
   updateLake(t);
+  updatePetals(dt, t);
 
   controls.update();
   if (useComposer && composer) {
